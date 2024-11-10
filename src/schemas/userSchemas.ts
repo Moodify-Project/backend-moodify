@@ -9,7 +9,6 @@ export const userRegisterSchema = z.object({
 });
 
 export const userLoginSchema = z.object({
-    username: z.string(),
+    email: z.string().email(),
     password: z.string().min(8).max(30).regex(/[A-Z]/, "Require at least a capital letter on your password").regex(/[^a-zA-Z0-9]/, "Require atleast one symbol on your password"),
-    // password: z.string().min(8).max(30),
 });

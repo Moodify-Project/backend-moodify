@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
 
-interface MiddlewareRequest extends Request {
+interface AuthMiddlewareRequest extends Request {
     username?: string;
 }
 
-export const authMiddleware = async (req: MiddlewareRequest, res: Response, next: NextFunction): Promise<any> => {
+export const authMiddleware = async (req: AuthMiddlewareRequest, res: Response, next: NextFunction): Promise<any> => {
     const authHeader: string = req.headers?.authorization || '';
     const refreshToken = req.cookies?.refreshToken;
 
