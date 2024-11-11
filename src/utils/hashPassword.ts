@@ -1,42 +1,41 @@
 import bcrypt from 'bcrypt';
 
-const generateHashedPassword = (saltRounds: number, password: string) => bcrypt.genSalt(saltRounds, (error: any, salt: any) => {
-    if (error) {
-        // Handle error
-        return;
-    }
+const generateHashedPassword = (saltRounds: number, password: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        bcrypt.genSalt(saltRounds, (error, salt) => {
+            if (error) {
+                return reject(error);
+            }
 
-    bcrypt.hash(password, salt, (err: any, hash: any) => {
-        if (err) {
-            // Handle error
-            return;
-        }
+            bcrypt.hash(password, salt, (err, hash) => {
+                if (err) {
+                    return reject(err);
+                }
 
-        return hash;
+                return resolve(hash);
+            });
+        });
+    });
+};
 
-    })
-});
+export const checkedPassword = (inputPassword: string, storedPassword: string): Promise<boolean> => {
+    return new Promise((resolve, reject) => {
+        bcrypt.compare(inputPassword, storedPassword, (err, result) => {
+            if (err) {
+                console.error('Error comparing passwords:', err);
+                return reject(err);
+            }
 
-export const checkedPassword = (inputPassword: string, storedPassword: string): boolean => {
-    bcrypt.compare(inputPassword, storedPassword, (err, result) => {
-        if (err) {
-            // Handle error
-            console.error('Error comparing passwords:', err);
-            // throw new Error('Error comparing passwords:');
-        }
-
-        if (result) {
-            // Passwords match, authentication successful
-            console.log('Passwords match! User authenticated.');
-            return true;
-        } else {
-            // Passwords don't match, authentication failed
-            console.log('Passwords do not match! Authentication failed.');
-            return false;
-        }
-    })
-
-    return false;
+            if (result) {
+                console.log('Passwords match! User authenticated.');
+                return resolve(true);
+            } else {
+                console.log('Passwords do not match! Authentication failed.');
+                return resolve(false);
+            }
+        });
+    });
 }
 
 export default generateHashedPassword;
+ 

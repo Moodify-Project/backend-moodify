@@ -1,9 +1,12 @@
 import express from 'express';
 import getNews from './handlers/getNews';
-import loginHandler from './handlers/loginHandler';
+import loginHandler, { registerHandler } from './handlers/loginHandler';
 import { authMiddleware } from './middlewares/authMiddleware';
 import cookieParser from 'cookie-parser';
 import nation from './handlers/nation';
+
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const port = 8000;
@@ -13,6 +16,7 @@ app.use(cookieParser());
 
 app.get('/news', getNews);
 app.post('/login', loginHandler);
+app.post('/register', registerHandler);
 app.get('/allNations', nation);
 app.get('/hello', authMiddleware, () => {
     console.log("hello word");

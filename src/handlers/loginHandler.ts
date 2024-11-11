@@ -1,37 +1,47 @@
 import { CookieOptions, Request, Response } from "express";
 import { userLoginSchema, userRegisterSchema } from "../schemas/userSchemas";
-import validateData from "../utils/validateData"
+import validateData from "../utils/validateData";
 import jwt from 'jsonwebtoken';
 import { generateRandom } from "../utils/generateRandom";
 import { prisma } from "../configs/prisma";
 import generateHashedPassword, { checkedPassword } from "../utils/hashPassword";
+import { Prisma } from "@prisma/client";
+
+interface User {
+    username: string;
+    email: string;
+    password: string;
+}
 
 const loginHandler = async (req: Request, res: Response): Promise<any> => {
     if (!req.cookies) {
-        return res.status(400).json({'error': 'error 400'});
+        return res.status(400).json({ 'error': 'error 400' });
     }
     const { email, password } = req.body;
     const loginData = validateData(userLoginSchema, { email, password });
 
-    if(loginData instanceof Map) {
+    if (loginData instanceof Map) {
         const errReponseObj = Object.fromEntries(loginData);
-
         return res.status(404).json(errReponseObj);
     }
 
-    const user = await prisma.user.findUnique({
+    const user: User | null = await prisma.user.findUnique({
         where: {
             email: email,
         }
     });
 
-    const passVerified = checkedPassword(password, user.password);
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+
+    const passVerified = await checkedPassword(password, user.password);
 
     if (!passVerified) {
-        res.status(403).json({
+        return res.status(403).json({
             status: false,
             message: 'Email or password wrong',
-        })
+        });
     }
 
     const privateKey: string = 'tes';
@@ -48,37 +58,40 @@ const loginHandler = async (req: Request, res: Response): Promise<any> => {
     };
 
     return res.status(200).cookie('refreshToken', refreshToken, cookieOption)
-    .json({ 
-        accessToken: accessToken, 
-        refreshToken: refreshToken 
-    });
+        .json({
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+        });
 }
 
-// export const refreshTokenHandler = (req: Request, res: Response) => {
-//     const refreshToken = req.cookies['refreshToken'];
-//     if (!refreshToken) {
-//      }
-// }
-
-
-
-export const registerHandler = async (req: Request, res: Response) => {
-
-    const { name, email, password } = req.body;
-
+export const registerHandler = async (req: Request, res: Response): Promise<any> => {
+    const { username, email, password } = req.body;
     const saltRounds = 10;
 
-    const hashedPass = generateHashedPassword(saltRounds, password);
-    
-    const user = await prisma.user.create({
-        data: {
-            name: name,
-            email: email,
-            password: hashedPass,
+    const hashedPass: any = await generateHashedPassword(saltRounds, password);
+
+    try {
+        const user = await prisma.user.create({
+            data: {
+                email: email,
+                username: username,
+                password: hashedPass,
+            }
+        });
+
+        return res.status(200).json(user);
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            return res.status(404).json({
+                success: false,
+                message: 'Username or email already registered',
+            });
         }
-    })
-    
-    return res.status(200).json(user);
-} 
+        return res.status(500).json({
+            success: false,
+            message: error,
+        });
+    }
+}
 
 export default loginHandler;
