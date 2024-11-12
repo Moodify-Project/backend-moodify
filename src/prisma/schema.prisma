@@ -11,12 +11,23 @@ model User {
   email String @id
   username  String
   password String
-  userBio UserInformation?
+  name String?
+  gender gender_type?
+  country String?
+  journal Journal[]
 }
 
-model UserInformation {
-  user User @relation(fields: [emailUser], references: [email])
-  emailUser String @unique
-  firstName String?
-  lastName String
+enum gender_type {
+  male 
+  female
+  secret
+}
+
+model Journal {
+  user        User     @relation(fields: [emailAuthor], references: [email])
+  emailAuthor String
+  journalId   String   @unique @id
+  content     String   @db.LongText
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
 }

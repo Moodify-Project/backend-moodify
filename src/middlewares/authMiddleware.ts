@@ -2,7 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
 
 interface AuthMiddlewareRequest extends Request {
-    username?: string;
+    // email or username
+    email?: string;
 }
 
 export const authMiddleware = async (req: AuthMiddlewareRequest, res: Response, next: NextFunction): Promise<any> => {
@@ -20,7 +21,8 @@ export const authMiddleware = async (req: AuthMiddlewareRequest, res: Response, 
     const userDecoded: jwt.JwtPayload | string = jwt.verify(token, privateKey);
 
     if (typeof userDecoded !== 'string') {
-        req.username = userDecoded.username;
+        // email or username
+        req.email = userDecoded.email;
         next();
     }
 

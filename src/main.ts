@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import nation from './handlers/nation';
 
 import dotenv from 'dotenv';
+import createNewJournal from './handlers/journalHandler';
 dotenv.config();
 
 const app = express();
@@ -18,6 +19,7 @@ app.get('/news', getNews);
 app.post('/login', loginHandler);
 app.post('/register', registerHandler);
 app.get('/allNations', nation);
+app.post('/journal', authMiddleware, createNewJournal);
 app.get('/hello', authMiddleware, () => {
     console.log("hello word");
 })

@@ -1,20 +1,26 @@
 import { Request, Response } from "express";
 import { prisma } from "../configs/prisma";
+import { gender_type } from '@prisma/client'
+
 
 interface AuthMiddlewareRequest extends Request {
-    username?: string;
+    email?: string;
 }
 
 export const getAllProfileHandler = async (req: AuthMiddlewareRequest, res: Response) => {
     const usersData = await prisma.user.findUnique({
         where: {
-            username: req.username
+            email: req.email
         }
     });
 
-    const {
-
-    } = usersData;
+    // const {
+    //     email,
+    //     username,
+    //     name,
+    //     gender,
+    //     country
+    // } = usersData;
 
     return res.status(200).json({
         status: true,
@@ -27,7 +33,7 @@ const editProfileHandler = async (req: AuthMiddlewareRequest, res: Response): Pr
 
     const updatedUser = await prisma.user.update({
         where: {
-            username: req.username,
+            email: req.email,
         },
         data: {
             name: name,

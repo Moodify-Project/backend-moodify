@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import { generateRandom } from "../utils/generateRandom";
 import { prisma } from "../configs/prisma";
 import generateHashedPassword, { checkedPassword } from "../utils/hashPassword";
-import { Prisma } from "@prisma/client";
+import { gender_type, Prisma } from "@prisma/client";
 
 interface User {
     username: string;
@@ -47,7 +47,7 @@ const loginHandler = async (req: Request, res: Response): Promise<any> => {
     const privateKey: string = 'tes';
     const jwtAccessTokenOpt: jwt.SignOptions = { algorithm: 'HS256', expiresIn: '1d' };
 
-    const accessToken = jwt.sign({ username: user.username }, privateKey, jwtAccessTokenOpt);
+    const accessToken = jwt.sign({ email: user.email }, privateKey, jwtAccessTokenOpt);
     const refreshToken = generateRandom(36);
 
     const cookieOption: CookieOptions = {
@@ -76,6 +76,9 @@ export const registerHandler = async (req: Request, res: Response): Promise<any>
                 email: email,
                 username: username,
                 password: hashedPass,
+                gender: gender_type.secret,
+                name: '',
+                country: 'Not Representing'
             }
         });
 
