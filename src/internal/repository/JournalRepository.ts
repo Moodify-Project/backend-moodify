@@ -1,5 +1,5 @@
 import { Journal } from "../../entity/journalEntity";
-import { BaseRepository } from "./baseRepository";
+import { BaseRepository } from "./BaseRepository";
 
 export class JournalRepository extends BaseRepository {
     async createNew(journal: Journal): Promise<Journal> {
@@ -18,10 +18,30 @@ export class JournalRepository extends BaseRepository {
         return await JournalRepository._prisma.journal.findFirstOrThrow({
             where: {
                 createdAt: {
-                    lte: new Date(`${equalDate} 00:00:00`),
-                    gte: new Date(`${equalDate} 23:59:59`),
+                    gte: new Date(`${equalDate} 00:00:00`),
+                    lte: new Date(`${equalDate} 23:59:59`),
                 },
                 emailAuthor: email,
+            }
+        })
+    }
+
+    async findJournalById(journalId: string): Promise<any> {
+        return await JournalRepository._prisma.journal.findUnique({
+            where: {
+                journalId: journalId
+            }
+        })
+    }
+
+    async updateJournalById(journalId: string, journal: Journal): Promise<Journal> {
+        return await JournalRepository._prisma.journal.update({
+            where: {
+                journalId: journalId
+            },
+            data: {
+                content: journal.content,
+                updatedAt: journal.updatedAt,
             }
         })
     }

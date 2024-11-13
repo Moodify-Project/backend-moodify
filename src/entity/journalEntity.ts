@@ -9,12 +9,8 @@ export class Journal {
         this.emailAuthor = emailAuthor;
         this.journalId = journalId;
         this.content = content;
-        this.createdAt = new Date();
-        this.updatedAt = new Date();
+        //
+        this.createdAt = new Date(new Date().setHours(new Date().getHours() + 16));
+        this.updatedAt = new Date(new Date().setHours(new Date().getHours() + 16));
     }
-
-    // updateContent(newContent: string) {
-    //     this.content = newContent;
-    //     this.updatedAt = new Date();
-    // }
 }
