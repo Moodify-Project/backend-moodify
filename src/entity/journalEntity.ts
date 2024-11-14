@@ -10,7 +10,7 @@ export class Journal {
         this.journalId = journalId;
         this.content = content;
         //
-        this.createdAt = new Date(new Date().setHours(new Date().getHours() + 16));
-        this.updatedAt = new Date(new Date().setHours(new Date().getHours() + 16));
+        this.createdAt = new Date(new Date().setHours(new Date().getHours() + 8));
+        this.updatedAt = new Date(new Date().setHours(new Date().getHours() + 8));
     }
 }

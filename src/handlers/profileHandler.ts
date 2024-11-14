@@ -29,7 +29,14 @@ export const getAllProfileHandler = async (req: AuthMiddlewareRequest, res: Resp
 }
 
 const editProfileHandler = async (req: AuthMiddlewareRequest, res: Response): Promise<any> => {
-    const { name, gender, country } = req.body;
+    if (!req.body) {
+        return res.status(400).json({
+            status: false,
+            message: "Can't update profile due to lack of request body"
+        });
+    }
+
+    const { name, gender, country, url_photo } = req.body;
 
     const updatedUser = await prisma.user.update({
         where: {

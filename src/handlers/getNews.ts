@@ -23,7 +23,7 @@ const getNews = (req: Request, res: Response): any => {
 
     const queryDate = date.toISOString().split("T")[0];
 
-    const indexToNum = Number(req.query.index);
+    const indexToNum = Number(req.query.index) || 0;
 
     if(myCache.get(`news-${indexToNum}`)) {
         const allNewsData: News[] = myCache.get(`news-${indexToNum}`) || [];

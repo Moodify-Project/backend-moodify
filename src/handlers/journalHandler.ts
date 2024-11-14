@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Journal } from "../entity/journalEntity";
-import { v4 as uuidv4, validate } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 import { JournalRepository } from "../internal/repository/JournalRepository";
 import { journalSchema } from "../schemas/journalSchemas";
 import validateData from "../utils/validateData";
@@ -103,7 +103,7 @@ export const getJounalEachDay = async (req: AuthMiddlewareRequest, res: Response
     }
 
     if (!date) {
-        return res.status(404).json({
+        return res.status(400).json({
             status: false,
             message: 'Please choose the date',
         }); 
