@@ -31,4 +31,22 @@ model Journal {
   content     String   @db.LongText
   createdAt   DateTime @default(now())
   updatedAt   DateTime
+  isPredicted Boolean
+  moods MoodOnJournal[]
+}
+
+model Mood {
+  id Int @unique @id @default(autoincrement())
+  moodName String
+  journals MoodOnJournal[]
+}
+
+model MoodOnJournal {
+  mood Mood @relation(fields: [moodId], references: [id])
+  moodId Int
+  journal Journal @relation(fields: [journalId], references: [journalId])
+  journalId String
+  percentage Int
+
+  @@id([moodId, journalId])
 }

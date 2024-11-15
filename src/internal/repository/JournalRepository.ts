@@ -10,6 +10,7 @@ export class JournalRepository extends BaseRepository {
                 content: journal.content,
                 createdAt: journal.createdAt,
                 updatedAt: journal.updatedAt,
+                isPredicted: journal.isPredicted,
             }
         });
     }

@@ -66,7 +66,7 @@ const createNewJournal = async (req: AuthMiddlewareRequest, res: Response): Prom
 
     const randomUUID = uuidv4();
 
-    const journal = new Journal(req.email, randomUUID, journalContent);
+    const journal = new Journal(req.email, randomUUID, journalContent, false);
 
     const journalData = validateData(journalSchema, journal);
 
@@ -111,7 +111,7 @@ export const getJounalEachDay = async (req: AuthMiddlewareRequest, res: Response
 
     const journal = await journalRepository.findOneJournal(req.email, date)
 
-    const { journalId, content, createdAt, updatedAt } = journal;
+    const { journalId, content, createdAt, updatedAt, isPredicted } = journal;
     return res.status(200).json({
         status: true,
         message: 'Journal fetch successfully from database',
@@ -120,6 +120,7 @@ export const getJounalEachDay = async (req: AuthMiddlewareRequest, res: Response
             content,
             createdAt,
             updatedAt,
+            isPredicted,
         }
     })
 }
