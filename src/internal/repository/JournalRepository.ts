@@ -2,6 +2,18 @@ import { Journal } from "../../entity/journalEntity";
 import { BaseRepository } from "./BaseRepository";
 
 export class JournalRepository extends BaseRepository {
+    async findOneJournal(email: string, equalDate: string): Promise<Journal> {
+        return await JournalRepository._prisma.journal.findFirstOrThrow({
+            where: {
+                createdAt: {
+                    gte: new Date(`${equalDate} 00:00:00`),
+                    lte: new Date(`${equalDate} 23:59:59`),
+                },
+                emailAuthor: email,
+            }
+        })
+    }
+    
     async createNew(journal: Journal): Promise<Journal> {
         return await JournalRepository._prisma.journal.create({
             data: {
@@ -13,18 +25,6 @@ export class JournalRepository extends BaseRepository {
                 isPredicted: journal.isPredicted,
             }
         });
-    }
-
-    async findOneJournal(email: string, equalDate: string): Promise<Journal> {
-        return await JournalRepository._prisma.journal.findFirstOrThrow({
-            where: {
-                createdAt: {
-                    gte: new Date(`${equalDate} 00:00:00`),
-                    lte: new Date(`${equalDate} 23:59:59`),
-                },
-                emailAuthor: email,
-            }
-        })
     }
 
     async findJournalById(journalId: string): Promise<any> {
@@ -45,5 +45,17 @@ export class JournalRepository extends BaseRepository {
                 updatedAt: journal.updatedAt,
             }
         })
+    }
+
+    async journalIsPredicted(journalId: string): Promise<Journal> {
+        return await JournalRepository._prisma.journal.update({
+            where: {
+                journalId: journalId
+            },
+            data: {
+                isPredicted: true
+            }
+        })
+
     }
 }

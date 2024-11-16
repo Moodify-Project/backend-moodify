@@ -4,6 +4,9 @@ import { v4 as uuidv4 } from "uuid";
 import { JournalRepository } from "../internal/repository/JournalRepository";
 import { journalSchema } from "../schemas/journalSchemas";
 import validateData from "../utils/validateData";
+import { prisma } from "../configs/prisma";
+import { MoodOnJournalRepository } from "../internal/repository/MoodOnJournalRepository";
+import { Transaction } from "../internal/repository/transaction";
 
 interface AuthMiddlewareRequest extends Request {
     // email or username
@@ -183,6 +186,45 @@ export const editJournal = async (req: AuthMiddlewareRequest, res: Response): Pr
         status: true,
         message: 'Jounal didnt updated, internal server error',
     })
+}
+
+export const moodOnJournalEachDay = async (req: AuthMiddlewareRequest, res: Response): Promise<any> => {
+    
+    const today = new Date();
+    const day = String(today.getDate() - 1).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+
+    const yesterdayString = `${year}-${month}-${day}`;
+    
+    if (!req.email) {
+        return res.status(403).json({
+            success: false,
+            message: 'please login'
+        })
+    }
+    
+    const transaction = new Transaction();
+    try {
+        const moods = await transaction.getMoodEachJournal(yesterdayString, req.email);
+
+        return res.status(200).json({
+            moods: moods,
+        })
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(400).json({
+                success: false,
+                message: error.message,
+            });
+        }
+    }
+
+    return res.status(500).json({
+        success: false,
+        message: 'internal server error',
+    });
+    
 }
 
 export default createNewJournal;
