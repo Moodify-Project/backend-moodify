@@ -10,6 +10,7 @@ import createNewJournal, { editJournal, moodOnJournalEachDay } from './handlers/
 import uploadPhotoProfile from './handlers/uploadPhotoProfile';
 import cors from 'cors';
 import { predictHandler } from './handlers/predictHandler';
+import { getAllArticle } from './handlers/articleHandler';
 dotenv.config();
 
 const app = express();
@@ -27,6 +28,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 app.get('/news', getNews);
+app.get('/articles', getAllArticle);
 app.post('/login', loginHandler);
 app.post('/register', registerHandler);
 app.get('/allNations', nation);

@@ -6,7 +6,7 @@ import { journalSchema } from "../schemas/journalSchemas";
 import validateData from "../utils/validateData";
 import { prisma } from "../configs/prisma";
 import { MoodOnJournalRepository } from "../internal/repository/MoodOnJournalRepository";
-import { Transaction } from "../internal/repository/transaction";
+import { Transaction } from "../internal/repository/Transaction";
 
 interface AuthMiddlewareRequest extends Request {
     // email or username

@@ -15,7 +15,9 @@ model User {
   gender gender_type?
   country String?
   urlphoto String?
+
   journal Journal[]
+  articles UserBookmarkArticle[]
 }
 
 enum gender_type {
@@ -32,12 +34,14 @@ model Journal {
   createdAt   DateTime @default(now())
   updatedAt   DateTime
   isPredicted Boolean
+
   moods MoodOnJournal[]
 }
 
 model Mood {
   id Int @unique @id @default(autoincrement())
   moodName String
+
   journals MoodOnJournal[]
 }
 
@@ -49,4 +53,26 @@ model MoodOnJournal {
   percentage Int
 
   @@id([moodId, journalId])
+}
+
+model Article {
+  id String @id
+  author String
+  title String
+  description String
+  url String
+  urlToImage String
+  publishedAt DateTime
+  content String
+
+  users UserBookmarkArticle[]
+}
+
+model UserBookmarkArticle {
+  user User @relation(fields: [emailUser], references: [email])
+  emailUser String
+  article Article @relation(fields: [articleId], references: [id])
+  articleId String
+
+  @@id([articleId, emailUser])
 }

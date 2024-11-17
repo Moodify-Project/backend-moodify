@@ -35,7 +35,7 @@ export class JournalRepository extends BaseRepository {
         })
     }
 
-    async updateJournalById(journalId: string, journal: Journal): Promise<Journal> {
+    updateJournalById = async (journalId: string, journal: Journal): Promise<Journal> => {
         return await JournalRepository._prisma.journal.update({
             where: {
                 journalId: journalId
