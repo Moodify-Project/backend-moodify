@@ -42,6 +42,6 @@ app.get('/hello', authMiddleware, () => {
     console.log("hello word");
 })
 
-app.listen(port, () => {
-    console.log(`server run on http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`server run on http://0.0.0.0:${port}`);
 });

@@ -1,16 +1,11 @@
 import { Request, Response } from "express";
-import { UserBookmarkArticleRepository } from "../internal/repository/BookmarkArticleRepository";
-import axios from "axios";
-import myCache from "../configs/myCache";
-import { ArticleRepository } from "../internal/repository/ArticleRepository";
 import { BaseRepository } from "../internal/repository/BaseRepository";
 import { Transaction } from "../internal/repository/Transaction";
+import { redisClient } from "../configs/redis";
 
-interface News {
-    source: {
-        id: undefined,
-        name: string,
-    };
+interface Article {
+    id: string;
+    source: string;
     author: string;
     title: string;
     description: string;
@@ -26,7 +21,6 @@ interface AuthMiddlewareRequest extends Request {
 }
 
 
-// still not idempotent
 export const addArticleToBookmark = async (req: AuthMiddlewareRequest, res: Response): Promise<any> => {
     const { email, body } = req;
     const { articleId } = body;
@@ -70,10 +64,23 @@ export const addArticleToBookmark = async (req: AuthMiddlewareRequest, res: Resp
 };
 
 export const getAllArticle = async (req: Request, res: Response): Promise<any> => {
-    const articleRepository = new BaseRepository();
-    const articles: any = await articleRepository.getAllArticleIdFromDB();
-
+    const client = await redisClient();
     const index: number = Number(req.query.index) || 0;
+
+    const articleRepository = new BaseRepository();
+    const cachedArticle: string | null = await client.get(`article-${index}`) || null;
+    if (cachedArticle) {
+        const parsedArticles = JSON.parse(cachedArticle);
+        const newResponse = {
+            status: 'success',
+            index: index,
+            totalArticle: parsedArticles.length, 
+            result: parsedArticles
+        }
+        return res.status(200).json(newResponse); 
+    }
+
+    const articles: any = await articleRepository.getAllArticleIdFromDB();
 
     const articleFixedCountBookmarked = articles.map((article: any) => ({
         ...article,
@@ -85,10 +92,16 @@ export const getAllArticle = async (req: Request, res: Response): Promise<any> =
     const firstSeq = index * 10;
     const temp = firstSeq + 9;
     const lastSeq = temp > articleFixedCountBookmarked.length ? articleFixedCountBookmarked.length - 1 : temp;
-    const newArr = [];
+    const newArr: Article[] = [];
     for (let i = firstSeq; i <= lastSeq; i++) {
         newArr.push(articleFixedCountBookmarked[i]);
     }
+
+    const expirationOption = {
+        EX: 10000
+    }
+
+    await client.set(`article-${index}`, JSON.stringify(newArr), expirationOption); 
 
     return res.status(200).json({
         status: true,
