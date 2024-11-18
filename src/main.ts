@@ -10,7 +10,7 @@ import createNewJournal, { editJournal, moodOnJournalEachDay } from './handlers/
 import uploadPhotoProfile from './handlers/uploadPhotoProfile';
 import cors from 'cors';
 import { predictHandler } from './handlers/predictHandler';
-import { getAllArticle } from './handlers/articleHandler';
+import { addArticleToBookmark, getAllArticle } from './handlers/articleHandler';
 dotenv.config();
 
 const app = express();
@@ -33,6 +33,7 @@ app.post('/login', loginHandler);
 app.post('/register', registerHandler);
 app.get('/allNations', nation);
 app.post('/journal', authMiddleware, createNewJournal);
+app.post('/bookmark', authMiddleware, addArticleToBookmark);
 app.post('/uploadPhoto', [authMiddleware, upload.single('image')], uploadPhotoProfile);
 app.post('/journal/:journalId', authMiddleware, editJournal);
 app.get('/journal_mood', authMiddleware, moodOnJournalEachDay);

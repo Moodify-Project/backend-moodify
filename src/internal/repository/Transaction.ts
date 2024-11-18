@@ -29,4 +29,28 @@ export class Transaction {
             return moods;
         })
     }
+
+    findOneThrowErrOrCreateBookmark = (email: string, articleId: string) => {
+        return prisma.$transaction(async (tx) => {
+            const bookmarkFound = await tx.userBookmarkArticle.findFirst({
+                where: {
+                    emailUser: email,
+                    articleId: articleId
+                }
+            })
+
+            console.log('yes:', bookmarkFound);
+
+            if (bookmarkFound) {
+                throw new Error('User already bookmark the article');
+            }
+
+            await tx.userBookmarkArticle.create({
+                data: {
+                    emailUser: email,
+                    articleId: articleId
+                }
+            })
+        })
+    }
 }

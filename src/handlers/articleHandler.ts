@@ -4,6 +4,7 @@ import axios from "axios";
 import myCache from "../configs/myCache";
 import { ArticleRepository } from "../internal/repository/ArticleRepository";
 import { BaseRepository } from "../internal/repository/BaseRepository";
+import { Transaction } from "../internal/repository/Transaction";
 
 interface News {
     source: {
@@ -24,7 +25,9 @@ interface AuthMiddlewareRequest extends Request {
     email?: string;
 }
 
-export const addArticleToBookmark = async (req: AuthMiddlewareRequest, res: Response) => {
+
+// still not idempotent
+export const addArticleToBookmark = async (req: AuthMiddlewareRequest, res: Response): Promise<any> => {
     const { email, body } = req;
     const { articleId } = body;
 
@@ -34,36 +37,65 @@ export const addArticleToBookmark = async (req: AuthMiddlewareRequest, res: Resp
             message: 'Please login'
         })
     }
-    const userOnArticle = new UserBookmarkArticleRepository();
-    const articleBookmarked = await userOnArticle.bookmarkTheArticle(email, articleId);
 
-    if (!articleBookmarked) {
+    if (!articleId) {
         return res.status(400).json({
             status: false,
-            message: 'Please provide email or select the article',
+            message: 'Please provide ArticleId request body'
         })
     }
 
-    return res.status(200).json({
-        status: true,
-        message: 'Successfully add article to bookmark',
-    })
+    const userOnArticle = new Transaction();
+    try {
+        const articleBookmarked = await userOnArticle.findOneThrowErrOrCreateBookmark(email, articleId);
+        // if (!articleBookmarked) {
+        //     return res.status(404).json({
+        //         status: false,
+        //         message: 'Article you want to bookmark is not found',
+        //     })
+        // }
+
+        return res.status(200).json({
+            status: true,
+            message: 'success bookmark an article',
+        })
+
+    } catch(error: any) {
+        console.log(error);
+        return res.status(409).json({
+            status: false,
+            error: error.message,
+        })
+    }
 };
 
 export const getAllArticle = async (req: Request, res: Response): Promise<any> => {
     const articleRepository = new BaseRepository();
     const articles: any = await articleRepository.getAllArticleIdFromDB();
 
+    const index: number = Number(req.query.index) || 0;
+
     const articleFixedCountBookmarked = articles.map((article: any) => ({
         ...article,
         bookmarkedCount: Number(article.bookmarkedCount)
     }))
-    console.log(articleFixedCountBookmarked);
+    
+    const { lengthOfArticle } = articleFixedCountBookmarked;
+
+    const firstSeq = index * 10;
+    const temp = firstSeq + 9;
+    const lastSeq = temp > articleFixedCountBookmarked.length ? articleFixedCountBookmarked.length - 1 : temp;
+    const newArr = [];
+    for (let i = firstSeq; i <= lastSeq; i++) {
+        newArr.push(articleFixedCountBookmarked[i]);
+    }
 
     return res.status(200).json({
         status: true,
         message: 'success get article from DB',
-        data: articleFixedCountBookmarked,
+        index: index,
+        totalArticle: newArr.length,
+        data: newArr,
     })
 
 

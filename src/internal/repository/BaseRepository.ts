@@ -8,8 +8,8 @@ export class BaseRepository {
     }
 
     getAllArticleIdFromDB = async () => {
-        return await BaseRepository._prisma.$queryRaw`select COUNT(*) as bookmarkedCount, B.id, B.title, 
-        B.description, B.url, B.urlToImage, B.publishedAt, B.content from userbookmarkarticle A JOIN 
-        article B ON A.articleId = B.id GROUP BY articleId`
+        return await BaseRepository._prisma.$queryRaw`SELECT COUNT(A.articleId) AS bookmarkedCount, B.id, 
+        B.title, B.description, B.url, B.urlToImage, B.publishedAt, B.content FROM article B LEFT JOIN 
+        userbookmarkarticle A ON A.articleId = B.id GROUP BY B.id ORDER BY bookmarkedCount DESC`
     }
 }
