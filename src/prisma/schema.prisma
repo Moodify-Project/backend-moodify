@@ -57,6 +57,7 @@ model MoodOnJournal {
 
 model Article {
   id String @id
+  source String
   author String
   title String
   description String
