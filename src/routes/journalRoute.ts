@@ -2,7 +2,7 @@ import { Router } from "express";
 import { JournalRepository } from "../internal/repositories/JournalRepository";
 import { FindDailyJournal } from "../internal/services/FindDailyJournal";
 import { CreateNewJournal } from "../internal/services/CreateNewJournal";
-import { JournalHandler } from "../handlers/journalHandler";
+import { JournalHandler, moodOnJournalEachDay } from "../handlers/journalHandler";
 import { UpdateJournal } from "../internal/services/UpdateJournal";
 import { MoodOnJournalServices } from "../internal/services/MoodOnJournal";
 import { MoodOnJournalRepository } from "../internal/repositories/MoodOnJournalRepository";
@@ -25,6 +25,6 @@ const journalHandler = new JournalHandler(createNew, getJournalEachDay, updateJo
 journalRouter.post('/', authMiddleware, journalHandler.createNewToday);
 journalRouter.get('/', authMiddleware, journalHandler.getJournalEachDay);
 journalRouter.put('/:id', authMiddleware, journalHandler.editJournal);
-journalRouter.get('/moods', authMiddleware, journalHandler.showMoodOnJournalEachDay);
+journalRouter.get('/moods', authMiddleware, moodOnJournalEachDay);
 
 export { journalRouter };

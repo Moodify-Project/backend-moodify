@@ -157,7 +157,7 @@ export class JournalHandler {
           });
 
         } catch(error: any) {
-          
+
           console.log(error);
           if (error.message === 'UnexpectedErrorOccur') {
             res.status(500).json({
@@ -189,48 +189,52 @@ export class JournalHandler {
 
 }
 
-// export const moodOnJournalEachDay = async (
-//   req: AuthMiddlewareRequest,
-//   res: Response
-// ): Promise<any> => {
-//   const today = new Date();
-//   const day = String(today.getDate() - 1).padStart(2, "0");
-//   const month = String(today.getMonth() + 1).padStart(2, "0");
-//   const year = today.getFullYear();
+export const moodOnJournalEachDay = async (
+  req: AuthMiddlewareRequest,
+  res: Response
+): Promise<any> => {
+  const today = new Date();
+  const day = String(today.getDate() - 1).padStart(2, "0");
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const year = today.getFullYear();
 
-//   const yesterdayString = `${year}-${month}-${day}`;
+  const yesterdayString = `${year}-${month}-${day}`;
 
-//   if (!req.email) {
-//     return res.status(403).json({
-//       success: false,
-//     message: "please login",
-//     });
-//   }
+  if (!req.email) {
+    return res.status(403).json({
+      success: false,
+      message: "please login",
+    });
+  }
 
-//   const transaction = new Transaction();
-//   try {
-//     const moods = await transaction.getMoodEachJournal(
-//       yesterdayString,
-//       req.email
-//     );
+  const transaction = new Transaction();
+  try {
+    const moodRecapEachDay = await transaction.getMoodEachJournal(
+      yesterdayString,
+      req.email
+    );
 
-//     return res.status(200).json({
-//       moods: moods,
-//     });
-//   } catch (error) {
-//     if (error instanceof Error) {
-//       return res.status(400).json({
-//         success: false,
-//         message: error.message,
-//       });
-//     }
-//   }
+    return res.status(200).json({
+      journalId: moodRecapEachDay.journalId,
+      moods: moodRecapEachDay.moods,
+    });
 
-//   return res.status(500).json({
-//     success: false,
-//     message: "internal server error",
-//   });
-// };
+  } catch (error) {
+
+    if (error instanceof Error) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+    
+  }
+
+  return res.status(500).json({
+    success: false,
+    message: "internal server error",
+  });
+};
 
 // export const createNewJournal = async (
 //     req: AuthMiddlewareRequest,

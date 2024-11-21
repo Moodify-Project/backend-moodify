@@ -3,7 +3,7 @@ import { prisma } from "../configs/prisma";
 export class Transaction {
   getMoodEachJournal = (equalDate: string, email: string) => {
     return prisma.$transaction(async (tx) => {
-      const journalId = await tx.journal.findFirst({
+      const journal = await tx.journal.findFirst({
         where: {
           createdAt: {
             gte: new Date(`${equalDate} 00:00:00`),
@@ -16,19 +16,34 @@ export class Transaction {
         },
       });
 
+      const journalId = journal?.journalId;
+
       if (!journalId) {
         throw new Error(
           `Journal not found for email: ${email} on date: ${equalDate}`
         );
       }
 
+      console.log(journalId)
+
       const moods = await tx.moodOnJournal.findMany({
         where: {
           journalId: String(journalId),
         },
+        select: {
+          moodId: true,
+          percentage: true,
+        }
       });
 
-      return moods;
+      // console.log(moods)
+
+      const moodRecapEachDay = {
+        journalId,
+        moods
+      }
+
+      return moodRecapEachDay;
     });
   };
 
