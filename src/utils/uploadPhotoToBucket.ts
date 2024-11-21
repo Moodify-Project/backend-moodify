@@ -115,7 +115,7 @@ const uploadFileThroughStream = async (fileBuffer: Buffer, bucketName: string, f
 
 export const uploadPhotoToBucketGCS = async (imgBuffer: Buffer, fileName: string, bucketName: string): Promise<string> => {
     const storage = new Storage({
-        keyFilename: 'D:/DEV_REACT/backend-moodify/bucketCredentialKey.json'
+        keyFilename: process.env.BUCKET_CREDENTIAL_PATH || 'D:/DEV_REACT/backend-moodify/bucketCredentialKey.json'
     });
 
     const location = 'ASIA-SOUTHEAST2';

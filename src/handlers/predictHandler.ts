@@ -1,20 +1,25 @@
 import { Request, Response } from "express";
-import { JournalRepository } from "../internal/repository/JournalRepository";
+import { JournalRepository } from "../internal/repositories/JournalRepository";
 
-export const predictHandler = async (req: Request, res: Response): Promise<any> => {
-    const journalId = req.params.journalId;
+export const predictHandler = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const journalId = req.params.journalId;
 
-    // put the model in here
-    
-    const journalRepository = new JournalRepository();
+  // put the model in here
 
-    const updateSuccessfully = await journalRepository.journalIsPredicted(journalId);
+  const journalRepository = new JournalRepository();
 
-    if (!updateSuccessfully) {
-        return res.status(500).json({error: 'internal server error'});
-    }
+  const updateSuccessfully = await journalRepository.journalIsPredicted(
+    journalId
+  );
 
-    console.log(journalId);
+  if (!updateSuccessfully) {
+    return res.status(500).json({ error: "internal server error" });
+  }
 
-    return res.status(200).json({msg: 'hello word'});
-}
+  console.log(journalId);
+
+  return res.status(200).json({ msg: "hello word" });
+};

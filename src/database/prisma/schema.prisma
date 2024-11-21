@@ -64,7 +64,7 @@ model Article {
   url String
   urlToImage String
   publishedAt DateTime
-  content String
+  content String @db.LongText
 
   users UserBookmarkArticle[]
 }

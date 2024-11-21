@@ -12,7 +12,7 @@ export class Journal {
         this.content = content;
         this.isPredicted = isPredicted;
         //
-        this.createdAt = new Date(new Date().setHours(new Date().getHours() + 8));
-        this.updatedAt = new Date(new Date().setHours(new Date().getHours() + 8));
+        this.createdAt = new Date(new Date().setHours(new Date().getHours()));
+        this.updatedAt = new Date(new Date().setHours(new Date().getHours()));
     }
 }

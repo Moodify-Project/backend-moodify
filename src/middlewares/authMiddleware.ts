@@ -6,6 +6,7 @@ interface AuthMiddlewareRequest extends Request {
     email?: string;
 }
 
+// TODO: auth middleware lack of check and error handling
 export const authMiddleware = async (req: AuthMiddlewareRequest, res: Response, next: NextFunction): Promise<any> => {
     const authHeader: string = req.headers?.authorization || '';
     const refreshToken = req.cookies?.refreshToken;
