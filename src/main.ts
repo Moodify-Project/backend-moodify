@@ -7,6 +7,10 @@ import multer from 'multer';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import { mainRouter } from './routes/mainRoute';
+import { PushJournalNotification } from './internal/services/messaging/PushJournalNotification';
+import { ReceiveNotification } from './internal/services/messaging/ReceiveNotification';
+import schedule from 'node-schedule';
+
 // import createNewJournal, { editJournal, moodOnJournalEachDay } from './handlers/journalHandler';
 // import uploadPhotoProfile from './handlers/UserInformationHandler';
 // import loginHandler, { registerHandler } from './handlers/loginHandler';
@@ -25,6 +29,16 @@ app.use(cors({
 }));
 
 app.use('/api/v1', mainRouter);
+
+const pushNotification = new PushJournalNotification();
+
+const pullNotification = new ReceiveNotification();
+
+schedule.scheduleJob('0 16 * * *', () => {
+    pushNotification.producer();
+})
+
+app.get('/users/journal', authMiddleware, pullNotification.consumer);
 
 
 // TODO: store all routes in one file route.ts

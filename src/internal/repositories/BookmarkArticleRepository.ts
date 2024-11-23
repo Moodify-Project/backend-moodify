@@ -27,4 +27,12 @@ export class UserBookmarkArticleRepository extends BaseRepository {
         });
     }
 
+    findBookmarkedArticleByUser = async (email: string) => {
+        return await UserBookmarkArticleRepository._prisma.userBookmarkArticle.findMany({
+            where: {
+                emailUser: email
+            }
+        })
+    }
+
 }

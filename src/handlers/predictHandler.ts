@@ -7,7 +7,7 @@ export const predictHandler = async (
 ): Promise<any> => {
   const journalId = req.params.journalId;
 
-  // put the model in here
+  // model
 
   const journalRepository = new JournalRepository();
 

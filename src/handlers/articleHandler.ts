@@ -5,6 +5,7 @@ import { redisClient } from "../internal/configs/redis";
 import { AuthenticatedRequest } from "../../types/interfaces/interface.common";
 import { BookmarkTheArticle } from "../internal/services/BookmarkTheArticle";
 import { FetchAllArticleService } from "../internal/services/FetchAllArticleService";
+import { ArticleBookmarkedByUserService } from "../internal/services/FindAllBookmarked";
 
 // export interface Article {
 //   id: string;
@@ -22,10 +23,12 @@ import { FetchAllArticleService } from "../internal/services/FetchAllArticleServ
 export class ArticleHandler {
   private bookmarkTheArticle: BookmarkTheArticle;
   private fetchAllArticleService: FetchAllArticleService;
+  private articleBookmarkedByUserService: ArticleBookmarkedByUserService;
 
-  constructor(bookmarkTheArticle: BookmarkTheArticle, fetchAllArticleService: FetchAllArticleService) {
+  constructor(bookmarkTheArticle: BookmarkTheArticle, fetchAllArticleService: FetchAllArticleService, articleBookmarkedByUserService: ArticleBookmarkedByUserService) {
     this.bookmarkTheArticle = bookmarkTheArticle;
     this.fetchAllArticleService = fetchAllArticleService;
+    this.articleBookmarkedByUserService = articleBookmarkedByUserService;
   }
 
   addArticleToBookmark = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
@@ -97,8 +100,25 @@ export class ArticleHandler {
       })
 
     }
-
   }
+
+  // getAllBookmarkedByUser = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+  //   const { email, body } = req;
+  //   if (!email) {
+  //     res.status(401).json({
+  //       error: true,
+  //       message: 'User need to authenticate first'
+  //     })
+  //   }
+
+  //   const articlesBookmarked = await this.articleBookmarkedByUserService.findAll(email);
+
+  //   res.status(200).json({
+  //     error: true,
+  //     message: 'Successfully fetch all bookmark data from user',
+  //     result: articlesBookmarked
+  //   })
+  // }
 }
 
 // export const getAllArticle = async (

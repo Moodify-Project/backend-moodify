@@ -8,8 +8,11 @@ interface Country {
   };
 }
 const nation = async (req: Request, res: Response): Promise<any> => {
-  if (myCache.get("allNations")) {
-    const allNations: string[] = myCache.get("allNations") || [];
+
+  const index = String(req.query.index) || 0;
+
+  if (myCache.get(`allNations-${index}`)) {
+    const allNations: string[] = myCache.get(`allNations-${index}`) || [];
 
     const newResponse = {
       success: true,

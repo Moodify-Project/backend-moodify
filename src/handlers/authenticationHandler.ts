@@ -58,6 +58,11 @@ export class AuthenticationHandler {
           status: false, 
           error: "Email and password you inputted doesn't match",
         });
+      } else {
+        return res.status(400).json({
+          status: false, 
+          error: error.message
+        });
       }
     }
   }

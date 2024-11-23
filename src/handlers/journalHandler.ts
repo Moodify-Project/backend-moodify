@@ -27,12 +27,14 @@ export class JournalHandler {
     private findDailyJournal: FindDailyJournal;
     private updateJournal: UpdateJournal;
     private moodOnJournalService: MoodOnJournalServices;
+    // private weeklyMoodServices: WeeklyMoodServices;
 
     constructor(createNewJournal: CreateNewJournal, findDailyJournal: FindDailyJournal, updateJournal: UpdateJournal, moodOnJournalService: MoodOnJournalServices) {
         this.createNewJournal = createNewJournal;
         this.findDailyJournal = findDailyJournal;
         this.updateJournal = updateJournal;
         this.moodOnJournalService = moodOnJournalService;
+        // this.weeklyMoodService = weeklyMoodService;
     }
 
     createNewToday = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
@@ -184,6 +186,19 @@ export class JournalHandler {
       }
 
       await this.moodOnJournalService.findAll(email)
+    }
+
+    calculateMoodEveryWeek = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+      const { email } = req;
+
+      if (!email) {
+        res.status(401).json({
+          error: true,
+          message: 'User not authenticated'
+        })
+      }
+
+      // this.weeklyMoodService.calculate();
     }
 
 

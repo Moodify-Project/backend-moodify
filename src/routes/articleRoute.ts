@@ -5,6 +5,7 @@ import { FetchAllArticleService } from "../internal/services/FetchAllArticleServ
 import { BaseRepository } from "../internal/repositories/BaseRepository";
 import { UserBookmarkArticleRepository } from "../internal/repositories/BookmarkArticleRepository";
 import { authMiddleware } from "../middlewares/authMiddleware";
+import { ArticleBookmarkedByUserService } from "../internal/services/FindAllBookmarked";
 
 const articleRouter = Router();
 
@@ -13,8 +14,9 @@ const userBookmarkArticleRepository = new UserBookmarkArticleRepository();
 
 const bookmarkTheArticle = new BookmarkTheArticle(userBookmarkArticleRepository);
 const fetchAllArticleService = new FetchAllArticleService(baseRepository);
+const articleBookmarkedByUserService = new ArticleBookmarkedByUserService(userBookmarkArticleRepository);
 
-const articleHandler = new ArticleHandler(bookmarkTheArticle, fetchAllArticleService);
+const articleHandler = new ArticleHandler(bookmarkTheArticle, fetchAllArticleService, articleBookmarkedByUserService);
 
 articleRouter.get('/', authMiddleware, articleHandler.getAllArticle);
 articleRouter.post('/bookmark', authMiddleware, articleHandler.addArticleToBookmark); // coba consider pake PUT
