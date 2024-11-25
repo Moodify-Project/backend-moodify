@@ -12,9 +12,9 @@ export interface Article {
     description: string;
     url: string;
     urlToImage: string;
-    publishedAt: string;
+    publishedAt: string | Date;
     content: string;
-    bookmarkCount: number;
+    bookmarkCount?: number;
 }
 
 export interface Country {

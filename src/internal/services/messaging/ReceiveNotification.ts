@@ -31,6 +31,8 @@ export class ReceiveNotification {
                 console.log(selectedEmail);
 
                 resolve(selectedEmail?.journal_count);
+
+                
             }
 
             const errorHandler = (error: any) => {

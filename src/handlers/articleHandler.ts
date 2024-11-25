@@ -1,34 +1,21 @@
-import { Request, Response } from "express";
-import { BaseRepository } from "../internal/repositories/BaseRepository";
-import { Transaction } from "../internal/repositories/Transaction";
-import { redisClient } from "../internal/configs/redis";
+import { Response } from "express";
 import { AuthenticatedRequest } from "../../types/interfaces/interface.common";
 import { BookmarkTheArticle } from "../internal/services/BookmarkTheArticle";
 import { FetchAllArticleService } from "../internal/services/FetchAllArticleService";
 import { ArticleBookmarkedByUserService } from "../internal/services/FindAllBookmarked";
-
-// export interface Article {
-//   id: string;
-//   source: string;
-//   author: string;
-//   title: string;
-//   description: string;
-//   url: string;
-//   urlToImage: string;
-//   publishedAt: string;
-//   content: string;
-//   bookmarkCount: number;
-// }
+import { FetchBookmarkedArticle } from "../internal/services/messaging/FetchBookmarkedArticle";
 
 export class ArticleHandler {
   private bookmarkTheArticle: BookmarkTheArticle;
   private fetchAllArticleService: FetchAllArticleService;
   private articleBookmarkedByUserService: ArticleBookmarkedByUserService;
+  private fetchBookmarkedArticle: FetchBookmarkedArticle;
 
-  constructor(bookmarkTheArticle: BookmarkTheArticle, fetchAllArticleService: FetchAllArticleService, articleBookmarkedByUserService: ArticleBookmarkedByUserService) {
+  constructor(bookmarkTheArticle: BookmarkTheArticle, fetchAllArticleService: FetchAllArticleService, articleBookmarkedByUserService: ArticleBookmarkedByUserService, fetchBookmarkedArticle: FetchBookmarkedArticle) {
     this.bookmarkTheArticle = bookmarkTheArticle;
     this.fetchAllArticleService = fetchAllArticleService;
     this.articleBookmarkedByUserService = articleBookmarkedByUserService;
+    this.fetchBookmarkedArticle = fetchBookmarkedArticle;
   }
 
   addArticleToBookmark = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
@@ -102,10 +89,24 @@ export class ArticleHandler {
     }
   }
 
+  showAllBookmarkedArticle = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+    const { email } = req;
+
+    if (!email) return res.status(403).json({ status: false, message: 'Email cant access to this endpoint' });
+    
+    const result = await this.fetchBookmarkedArticle.findAll(email);
+
+    return res.status(200).json({
+      status: true,
+      message: `successfully fetch bookmark article for user with email: ${email}`,
+      articles: result,
+    })
+  }
+
   // getAllBookmarkedByUser = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
   //   const { email, body } = req;
   //   if (!email) {
-  //     res.status(401).json({
+  //     return res.status(401).json({
   //       error: true,
   //       message: 'User need to authenticate first'
   //     })
@@ -120,100 +121,3 @@ export class ArticleHandler {
   //   })
   // }
 }
-
-// export const getAllArticle = async (
-//   req: Request,
-//   res: Response
-// ): Promise<any> => {
-//   const client = await redisClient();
-//   const index: number = Number(req.query.index) || 0;
-
-//   const articleRepository = new BaseRepository();
-//   const cachedArticle: string | null =
-//     (await client.get(`article-${index}`)) || null;
-//   if (cachedArticle) {
-//     const parsedArticles = JSON.parse(cachedArticle);
-//     const newResponse = {
-//       status: "success",
-//       index: index,
-//       totalArticle: parsedArticles.length,
-//       result: parsedArticles,
-//     };
-//     return res.status(200).json(newResponse);
-//   }
-
-//   const articles: any = await articleRepository.getAllArticleIdFromDB();
-
-//   const articleFixedCountBookmarked = articles.map((article: any) => ({
-//     ...article,
-//     bookmarkedCount: Number(article.bookmarkedCount),
-//   }));
-
-//   const { lengthOfArticle } = articleFixedCountBookmarked;
-
-//   const firstSeq = index * 10;
-//   const temp = firstSeq + 9;
-//   const lastSeq =
-//     temp > articleFixedCountBookmarked.length
-//       ? articleFixedCountBookmarked.length - 1
-//       : temp;
-//   const newArr: Article[] = [];
-//   for (let i = firstSeq; i <= lastSeq; i++) {
-//     newArr.push(articleFixedCountBookmarked[i]);
-//   }
-
-//   const expirationOption = {
-//     EX: 10000,
-//   };
-
-//   await client.set(
-//     `article-${index}`,
-//     JSON.stringify(newArr),
-//     expirationOption
-//   );
-
-//   return res.status(200).json({
-//     status: true,
-//     message: "success get article from DB",
-//     index: index,
-//     totalArticle: newArr.length,
-//     data: newArr,
-//   });
-// };
-
-
-// export const addArticleToBookmark = async (
-//   req: AuthMiddlewareRequest,
-//   res: Response
-// ): Promise<any> => {
-
-//   const userOnArticle = new Transaction();
-//   try {
-//     const articleBookmarked =
-//       await userOnArticle.findOneThrowErrOrCreateBookmark(email, articleId);
-//     // if (!articleBookmarked) {
-//     //     return res.status(404).json({
-//     //         status: false,
-//     //         message: 'Article you want to bookmark is not found',
-//     //     })
-//     // }
-
-//     const client = await redisClient();
-
-//     const articles = await client.keys('article-*');
-//     for (const article of articles) {
-//       await client.del(article);
-//     } 
-
-//     return res.status(200).json({
-//       status: true,
-//       message: "success bookmark an article",
-//     });
-//   } catch (error: any) {
-//     console.log(error);
-//     return res.status(409).json({
-//       status: false,
-//       error: error.message,
-//     });
-//   }
-// };

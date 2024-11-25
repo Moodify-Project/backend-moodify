@@ -1,10 +1,10 @@
-export const getTodayDateString = (): string => {
-    const today = new Date();
-    const day = String(today.getDate()).padStart(2, "0");
+export const getTodayDateString = (yearParam?: number, monthParam?: number, dateParam?: number): string => {
+    const today = (yearParam && monthParam && dateParam) ? new Date(yearParam, monthParam, dateParam) : new Date();
+    const date = String(today.getDate()).padStart(2, "0");
     const month = String(today.getMonth() + 1).padStart(2, "0");
     const year = today.getFullYear();
   
-    return `${year}-${month}-${day}`;
+    return `${year}-${month}-${date}`;
 };
 
 export const getTodayClockString = (utc: number): string => {

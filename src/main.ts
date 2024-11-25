@@ -34,11 +34,11 @@ const pushNotification = new PushJournalNotification();
 
 const pullNotification = new ReceiveNotification();
 
-schedule.scheduleJob('0 16 * * *', () => {
-    pushNotification.producer();
+schedule.scheduleJob('* * * * *', () => {
+    // pushNotification.producer();
 })
 
-app.get('/users/journal', authMiddleware, pullNotification.consumer);
+// app.get('/users/journal', authMiddleware, pullNotification.consumer);
 
 
 // TODO: store all routes in one file route.ts

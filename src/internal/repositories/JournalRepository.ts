@@ -72,4 +72,19 @@ export class JournalRepository
       AND (journal.createdAt IS NULL OR journal.createdAt BETWEEN '2024-11-22 00:00:00' AND '2024-11-22 23:00:00') 
       GROUP BY user.email;`
     }
+
+    filterJournalIdByWeekly = async(email: string, startDate: string, endDate: string): Promise<any> => {
+      return await JournalRepository._prisma.journal.findMany({
+        where: {
+          emailAuthor: email,
+          createdAt: {
+            gte: new Date(`${startDate} 00:00:00`),
+            lte: new Date(`${endDate} 23:59:59`)
+          }
+        },
+        select: {
+          journalId: true
+        }
+      })
+    }
 }

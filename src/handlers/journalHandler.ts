@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Journal } from "../domain/entities/Journal";
 import { v4 as uuidv4 } from "uuid";
-import { JournalRepository } from "../internal/repositories/JournalRepository";
+// import { JournalRepository } from "../internal/repositories/JournalRepository";
 import { journalSchema } from "../schemas/journalSchemas";
 import validateData from "../utils/validateData";
 import { Transaction } from "../internal/repositories/Transaction";
@@ -10,6 +10,8 @@ import { FindDailyJournal } from "../internal/services/FindDailyJournal";
 import { AuthenticatedRequest } from "../../types/interfaces/interface.common";
 import { UpdateJournal } from "../internal/services/UpdateJournal";
 import { MoodOnJournalServices } from "../internal/services/MoodOnJournal";
+import { getTodayDateString } from "../utils/todayString";
+import { WeeklyMoodJournal } from "../internal/services/WeeklyMoodJournal";
 
 // TODO: create directory to store all custom interface
 interface AuthMiddlewareRequest extends Request {
@@ -27,14 +29,14 @@ export class JournalHandler {
     private findDailyJournal: FindDailyJournal;
     private updateJournal: UpdateJournal;
     private moodOnJournalService: MoodOnJournalServices;
-    // private weeklyMoodServices: WeeklyMoodServices;
+    private weeklyMoodJournal: WeeklyMoodJournal;
 
-    constructor(createNewJournal: CreateNewJournal, findDailyJournal: FindDailyJournal, updateJournal: UpdateJournal, moodOnJournalService: MoodOnJournalServices) {
+    constructor(createNewJournal: CreateNewJournal, findDailyJournal: FindDailyJournal, updateJournal: UpdateJournal, moodOnJournalService: MoodOnJournalServices, weeklyMoodJournal: WeeklyMoodJournal) {
         this.createNewJournal = createNewJournal;
         this.findDailyJournal = findDailyJournal;
         this.updateJournal = updateJournal;
         this.moodOnJournalService = moodOnJournalService;
-        // this.weeklyMoodService = weeklyMoodService;
+        this.weeklyMoodJournal = weeklyMoodJournal;
     }
 
     createNewToday = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
@@ -201,7 +203,20 @@ export class JournalHandler {
       // this.weeklyMoodService.calculate();
     }
 
+    fetchWeeklyMood = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+      const dateQuery: string = String(req.query?.date);
 
+      const { email } = req;
+
+      if (!email) return res.status(403).json({ error: true, message: 'Forbiden role' });
+
+      const result = await this.weeklyMoodJournal.execute(email, dateQuery);
+
+      return res.status(200).json({
+        error: false,
+        journals: Object.fromEntries(result)
+      })
+    }
 }
 
 export const moodOnJournalEachDay = async (

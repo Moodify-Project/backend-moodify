@@ -31,6 +31,9 @@ export class UserBookmarkArticleRepository extends BaseRepository {
         return await UserBookmarkArticleRepository._prisma.userBookmarkArticle.findMany({
             where: {
                 emailUser: email
+            },
+            select: {
+                articleId: true
             }
         })
     }

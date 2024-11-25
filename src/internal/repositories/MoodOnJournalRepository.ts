@@ -23,4 +23,13 @@ export class MoodOnJournalRepository extends BaseRepository {
         return moods;
     };
     
+    getJournalEveryWeekly = async(journalIds: string[]) => {
+        return await MoodOnJournalRepository._prisma.moodOnJournal.findMany({
+            where: {
+                journalId: {
+                    in: journalIds
+                },
+            },
+        });
+    } 
 }
