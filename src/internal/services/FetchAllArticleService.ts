@@ -1,12 +1,15 @@
 import { Article } from "../../../types/interfaces/interface.common";
 import { redisClient } from "../configs/redis";
+import { ArticleRepository } from "../repositories/ArticleRepository";
 import { BaseRepository } from "../repositories/BaseRepository";
 
 export class FetchAllArticleService {
     private baseRepository: BaseRepository;
+    private articleRepository: ArticleRepository;
 
-    constructor(baseRepository: BaseRepository) {
+    constructor(baseRepository: BaseRepository, articleRepository: ArticleRepository) {
         this.baseRepository = baseRepository;
+        this.articleRepository = articleRepository;
     }
 
     findAll = async (index: number): Promise<Article[]> => {
@@ -52,6 +55,10 @@ export class FetchAllArticleService {
         );
 
         return newArr;
+    }
+
+    getDetailArticle = async (articleId: string): Promise<Article> => {
+      return await this.articleRepository.findArticleById(articleId);
     }
 
 }

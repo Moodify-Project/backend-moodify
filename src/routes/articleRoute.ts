@@ -8,6 +8,7 @@ import { authMiddleware } from "../middlewares/authMiddleware";
 import { ArticleBookmarkedByUserService } from "../internal/services/FindAllBookmarked";
 import { FetchBookmarkedArticle } from "../internal/services/messaging/FetchBookmarkedArticle";
 import { ArticleRepository } from "../internal/repositories/ArticleRepository";
+import { DeleteArticleBookmarked } from "../internal/services/DeleteArticleBookmarked";
 
 const articleRouter = Router();
 
@@ -16,13 +17,17 @@ const userBookmarkArticleRepository = new UserBookmarkArticleRepository();
 const articleRepository = new ArticleRepository();
 
 const bookmarkTheArticle = new BookmarkTheArticle(userBookmarkArticleRepository);
-const fetchAllArticleService = new FetchAllArticleService(baseRepository);
+const fetchAllArticleService = new FetchAllArticleService(baseRepository, articleRepository);
 const articleBookmarkedByUserService = new ArticleBookmarkedByUserService(userBookmarkArticleRepository);
 const fetchBookmarkedArticle = new FetchBookmarkedArticle(userBookmarkArticleRepository, articleRepository);
+const deleteArticleBookmarked = new DeleteArticleBookmarked(articleRepository, userBookmarkArticleRepository);
 
-const articleHandler = new ArticleHandler(bookmarkTheArticle, fetchAllArticleService, articleBookmarkedByUserService, fetchBookmarkedArticle);
+const articleHandler = new ArticleHandler(bookmarkTheArticle, fetchAllArticleService, articleBookmarkedByUserService, fetchBookmarkedArticle, deleteArticleBookmarked);
 
 articleRouter.get('/', authMiddleware, articleHandler.getAllArticle);
-articleRouter.post('/bookmark', authMiddleware, articleHandler.addArticleToBookmark); // coba consider pake PUT
+articleRouter.get('/:id', authMiddleware, articleHandler.getSpecificArticleContent);
+articleRouter.post('/bookmark', authMiddleware, articleHandler.addArticleToBookmark);
+articleRouter.delete('/:id/bookmark', authMiddleware, articleHandler.deleteBookmark);
+articleRouter.get('/bookmarks/me', authMiddleware, articleHandler.showAllBookmarkedArticle);
 
 export { articleRouter };

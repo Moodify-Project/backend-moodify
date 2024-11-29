@@ -33,7 +33,7 @@ export class LoginService {
             throw new Error('EmailAndPasswordNotMatch')
         }
 
-        const privateKey: string = "tes";
+        const privateKey: string = process.env.JWT_PRIVATE_KEY || "tes";
         const jwtAccessTokenOpt: jwt.SignOptions = {
           algorithm: "HS256",
           expiresIn: "1d",
@@ -51,6 +51,14 @@ export class LoginService {
             accessToken,
             refreshToken
         }
+    }
+
+    updateUserRefreshToken = async (email: string, refreshToken: string): Promise<void> => {
+        const updatedToken = await this.userRepository.updateRefreshToken(email, refreshToken);
+
+        if (!updatedToken) throw new Error('internal server error when want to update refresh token');
+
+        console.log('successfully update refresh token');
     }
 
 }

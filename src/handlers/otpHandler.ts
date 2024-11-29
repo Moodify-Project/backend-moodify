@@ -19,8 +19,6 @@ export const sendOtpToEmail = async (req: Request, res: Response) => {
 
   const sixDigitOtp = otp.getNewOtp(6, 120);
 
-  // create transporter
-
   const transporter = nodemailer.createTransport({
     service: "Gmail",
     host: "smtp.gmail.com",

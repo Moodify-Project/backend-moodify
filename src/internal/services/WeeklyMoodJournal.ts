@@ -13,7 +13,7 @@ export class WeeklyMoodJournal {
     }
 
     execute = async(email: string, dateQuery: string) => {
-              // console.log(date.getDay());
+        
       const daysInTheWeek = [
         "Sunday",
         "Monday",
@@ -48,12 +48,6 @@ export class WeeklyMoodJournal {
       console.log(startDateOfWeek);
       console.log(endDateOfWeek);
 
-    //   JournalRepository.
-
-
-      // const dayConverted: string = daysInTheWeek[todayDateDay];
-
-      // console.log(dayConverted);
 
         const journals = await this.journalRepository.filterJournalIdByWeekly(email, startDateOfWeek, endDateOfWeek);
 
@@ -66,16 +60,29 @@ export class WeeklyMoodJournal {
         console.log(moodsJournals);
 
         const data: Map<string, object[]> = new Map();
+        const moodCalculate: number[][] = Array(5).fill(null).map(() => [0, 0]);
+        const rateOfPercentageEach: number[] = [];
 
         moodsJournals.map((moodJournal) => {
             if (!data.has(moodJournal.journalId)) {
                 data.set(moodJournal.journalId, [])
             }
+            
+            moodCalculate[moodJournal.moodId][0] += moodJournal.percentage;
+            moodCalculate[moodJournal.moodId][1] += 1;
 
             data.get(moodJournal.journalId)?.push(moodJournal);
         })
 
-        console.log(data);
+        console.log(moodCalculate);
+
+        moodCalculate.map((val, idx) => {
+            const percents = Number(val[0] / val[1]) || 0;
+
+            rateOfPercentageEach.push(percents);
+        })
+
+        console.log(rateOfPercentageEach);
 
         return data;
     }

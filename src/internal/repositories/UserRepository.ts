@@ -47,4 +47,26 @@ export class UserRepository extends BaseRepository {
             },
         });
     }
+
+    findMatchedRefreshToken = async (email: string) => {
+        return await UserRepository._prisma.user.findFirstOrThrow({
+            where: {
+                email: email
+            },
+            select: {
+                refreshtoken: true
+            }
+        })
+    }
+
+    updateRefreshToken = async (email: string, refreshToken: string) => {
+        return await UserRepository._prisma.user.update({
+            data: {
+                refreshtoken: refreshToken
+            },
+            where: {
+                email: email
+            }
+        })
+    }
 }

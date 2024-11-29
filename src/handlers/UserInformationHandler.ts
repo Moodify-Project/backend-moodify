@@ -1,6 +1,4 @@
-import { Request, Response } from "express";
-import { uploadPhotoToBucketGCS } from "../utils/uploadPhotoToBucket";
-import { prisma } from "../internal/configs/prisma";
+import { Response } from "express";
 import { UploadPhotoUser } from "../internal/services/UploadPhotoUser";
 import { AuthenticatedRequest } from "../../types/interfaces/interface.common";
 import { UpdateProfileUser } from "../internal/services/UpdateProfileUser";
@@ -44,11 +42,11 @@ export class UserInformationHandler {
         imageUrl: imageUrl,
       });
 
-    } catch(error) {
+    } catch(error: any) {
 
       return res.status(500).json({
         status: false,
-        message: "Failed upload photo due to server error",
+        message: `internal server error, ${error.message}`,
       });
     }
   }

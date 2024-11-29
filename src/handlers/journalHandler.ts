@@ -1,16 +1,10 @@
 import { Request, Response } from "express";
-import { Journal } from "../domain/entities/Journal";
-import { v4 as uuidv4 } from "uuid";
-// import { JournalRepository } from "../internal/repositories/JournalRepository";
-import { journalSchema } from "../schemas/journalSchemas";
-import validateData from "../utils/validateData";
 import { Transaction } from "../internal/repositories/Transaction";
 import { CreateNewJournal } from "../internal/services/CreateNewJournal";
 import { FindDailyJournal } from "../internal/services/FindDailyJournal";
 import { AuthenticatedRequest } from "../../types/interfaces/interface.common";
 import { UpdateJournal } from "../internal/services/UpdateJournal";
 import { MoodOnJournalServices } from "../internal/services/MoodOnJournal";
-import { getTodayDateString } from "../utils/todayString";
 import { WeeklyMoodJournal } from "../internal/services/WeeklyMoodJournal";
 
 // TODO: create directory to store all custom interface
@@ -70,7 +64,7 @@ export class JournalHandler {
 
             }
 
-            return res.status(200).json({
+            return res.status(201).json({
                 status: true,
                 message: 'Successfully created journal',
               });

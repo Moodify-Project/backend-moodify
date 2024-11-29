@@ -15,6 +15,7 @@ model User {
   gender gender_type?
   country String?
   urlphoto String?
+  refreshtoken String?
 
   journal Journal[]
   articles UserBookmarkArticle[]

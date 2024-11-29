@@ -38,4 +38,16 @@ export class UserBookmarkArticleRepository extends BaseRepository {
         })
     }
 
+    deleteArticleFromBookmark = async (email: string, articleId: string) => {
+        return await UserBookmarkArticleRepository._prisma.userBookmarkArticle.delete({
+            where: {
+                articleId_emailUser: {
+                    articleId: articleId,
+                    emailUser: email
+                }
+            }
+        })
+    }
+    
+
 }

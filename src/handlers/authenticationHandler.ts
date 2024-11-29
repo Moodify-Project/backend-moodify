@@ -1,22 +1,21 @@
 import { CookieOptions, Request, Response } from "express";
-import { userLoginSchema, userRegisterSchema } from "../schemas/userSchemas";
-import validateData from "../utils/validateData";
-import jwt from "jsonwebtoken";
-import { generateRandom } from "../utils/generateRandom";
-import { prisma } from "../internal/configs/prisma";
-import generateHashedPassword, { checkedPassword } from "../utils/hashPassword";
-import { gender_type, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { LoginService } from "../internal/services/LoginService";
 import { RegisterService } from "../internal/services/RegisterService";
+import { AuthenticatedRequest } from "../../types/interfaces/interface.common";
+import { RefreshTokenService } from "../internal/services/RefreshTokenService";
+import generateHashedPassword from "../utils/hashPassword";
 
 
 export class AuthenticationHandler {
   private loginService: LoginService;
   private registerService: RegisterService;
+  private refreshTokenService: RefreshTokenService;
 
-  constructor(loginService: LoginService, registerService: RegisterService) {
+  constructor(loginService: LoginService, registerService: RegisterService, refreshTokenService: RefreshTokenService) {
     this.loginService = loginService;
     this.registerService = registerService;
+    this.refreshTokenService = refreshTokenService;
   }
 
   loginAccount = async (req: Request, res: Response): Promise<any> => {
@@ -28,14 +27,19 @@ export class AuthenticationHandler {
 
     try {
       const { accessToken, refreshToken } = await this.loginService.execute(email, password);
-      // const { accessToken, refreshToken } = account;
 
       const cookieOption: CookieOptions = {
         httpOnly: true,
-        // secure: true, // if https
+        secure: process.env.NODE_ENV === 'production',
         sameSite: "strict",
         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       };
+
+      const hashedRefreshToken = await generateHashedPassword(10, refreshToken);
+
+      console.log(hashedRefreshToken);
+
+      await this.loginService.updateUserRefreshToken(email, hashedRefreshToken);
     
       return res
         .status(200)
@@ -73,7 +77,7 @@ export class AuthenticationHandler {
     try {
       await this.registerService.execute(email, username, password);
 
-      return res.status(200).json({
+      return res.status(201).json({
         success: true,
         message: 'success registered',
       });
@@ -90,91 +94,40 @@ export class AuthenticationHandler {
       });
     }
   }
-}
-
-// export const registerHandler = async (
-//   req: Request,
-//   res: Response
-// ): Promise<any> => {
-//   const { username, email, password } = req.body;
-//   const saltRounds = 10;
-
-//   const hashedPass: any = await generateHashedPassword(saltRounds, password);
-
-//   try {
-//     const user = await prisma.user.create({
-//       data: {
-//         email: email,
-//         username: username,
-//         password: hashedPass,
-//         gender: gender_type.secret,
-//         name: "",
-//         country: "Not Representing",
-//       },
-//     });
-
-//     return res.status(200).json(user);
-//   } catch (error) {
-//     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Username or email already registered",
-//       });
-//     }
-//     return res.status(500).json({
-//       success: false,
-//       message: error,
-//     });
-//   }
-// };
-
-// export const loginHandler = async (req: Request, res: Response): Promise<any> => {
-//   if (!req.cookies) {
-//     return res.status(400).json({ error: "error 400" });
-//   }
-//   const { email, password } = req.body;
-
-
-
-
-//   if (!user) {
-//     return res.status(404).json({ error: "User not found" });
-//   }
-
-//   const passVerified = await checkedPassword(password, user.password);
-
-//   if (!passVerified) {
-//     return res.status(403).json({
-//       status: false,
-//       message: "Email or password wrong",
-//     });
-//   }
-
-//   const privateKey: string = "tes";
-//   const jwtAccessTokenOpt: jwt.SignOptions = {
-//     algorithm: "HS256",
-//     expiresIn: "1d",
-//   };
-
-//   const accessToken = jwt.sign(
-//     { email: user.email },
-//     privateKey,
-//     jwtAccessTokenOpt
-//   );
-//   const refreshToken = generateRandom(36);
-
-//     const cookieOption: CookieOptions = {
-//       httpOnly: true,
-//       // secure: true, // if https
-//       sameSite: "strict",
-//       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-//     };
-
-//     return res
-//       .status(200)
-//       .cookie("refreshToken", refreshToken, cookieOption)
-//       .json({
-//         accessToken: accessToken,
-//         refreshToken: refreshToken,
-//       });
-// };
+  useRefreshToken = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+    const refresh_token = req.cookies.refreshToken;
+    const { email } = req;
+    const { expiredDate } = req.body;
+  
+    if (!email) {
+      return res.status(401).json({ error: true, message: 'User not authorized' });
+    }
+  
+    if (!refresh_token) {
+      return res.status(403).json({ error: true, message: 'No refresh token provided. Please log in again.' });
+    }
+  
+    try {
+      const tokenObject = await this.refreshTokenService.fetch(email, refresh_token, expiredDate);
+      const { newAccessToken, expiredNewAccToken, comparedToken } = tokenObject;
+  
+      if (!comparedToken) {
+        return res.status(404).json({ error: true, message: 'Refresh token does not match' });
+      }
+  
+      // await this.refreshTokenService.updateRefreshTokenInDB(email, refresh_token);
+  
+      return res.status(200).json({
+        error: false,
+        message: 'Successfully refreshed token',
+        accessToken: newAccessToken,
+        expiredDate: expiredNewAccToken,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        error: true,
+        message: `internal server error, ${error.message}`,
+      });
+    }
+  };
+}  

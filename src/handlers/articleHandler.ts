@@ -4,24 +4,29 @@ import { BookmarkTheArticle } from "../internal/services/BookmarkTheArticle";
 import { FetchAllArticleService } from "../internal/services/FetchAllArticleService";
 import { ArticleBookmarkedByUserService } from "../internal/services/FindAllBookmarked";
 import { FetchBookmarkedArticle } from "../internal/services/messaging/FetchBookmarkedArticle";
+import { DeleteArticleBookmarked } from "../internal/services/DeleteArticleBookmarked";
 
 export class ArticleHandler {
   private bookmarkTheArticle: BookmarkTheArticle;
   private fetchAllArticleService: FetchAllArticleService;
   private articleBookmarkedByUserService: ArticleBookmarkedByUserService;
   private fetchBookmarkedArticle: FetchBookmarkedArticle;
+  private deleteArticleBookmarked: DeleteArticleBookmarked;
 
-  constructor(bookmarkTheArticle: BookmarkTheArticle, fetchAllArticleService: FetchAllArticleService, articleBookmarkedByUserService: ArticleBookmarkedByUserService, fetchBookmarkedArticle: FetchBookmarkedArticle) {
+  constructor(bookmarkTheArticle: BookmarkTheArticle, fetchAllArticleService: FetchAllArticleService, articleBookmarkedByUserService: ArticleBookmarkedByUserService, fetchBookmarkedArticle: FetchBookmarkedArticle, deleteArticleBookmarked: DeleteArticleBookmarked) {
     this.bookmarkTheArticle = bookmarkTheArticle;
     this.fetchAllArticleService = fetchAllArticleService;
     this.articleBookmarkedByUserService = articleBookmarkedByUserService;
     this.fetchBookmarkedArticle = fetchBookmarkedArticle;
+    this.deleteArticleBookmarked = deleteArticleBookmarked;
   }
 
   addArticleToBookmark = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
 
     const { email, body } = req;
     const { articleId } = body;
+
+    console.log(email);
   
     if (!email) {
       return res.status(401).json({
@@ -41,7 +46,7 @@ export class ArticleHandler {
       const articleSuccessBookmarked = await this.bookmarkTheArticle.execute(email, articleId);
 
       if (articleSuccessBookmarked) {
-        res.status(200).json({
+        res.status(201).json({
           status: true,
           message: `Success bookmarked article with id: ${articleId}`,
         })
@@ -83,7 +88,8 @@ export class ArticleHandler {
 
       return res.status(500).json({
         status: false,
-        message: "internal server error, contact the developer to start the service",
+        error: error.message,
+        // message: "internal server error, contact the developer to start the service",
       })
 
     }
@@ -100,7 +106,60 @@ export class ArticleHandler {
       status: true,
       message: `successfully fetch bookmark article for user with email: ${email}`,
       articles: result,
-    })
+    });
+  }
+
+  unbookmarkArticle = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+    const { email } = req;
+    const { id } = req.params;
+
+    
+  }
+
+  getSpecificArticleContent = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+    const { articleId } = req.params;
+
+    try {
+      // const { id, source, author, title, description, url, urlToImage, publishedAt, content } = await this.fetchAllArticleService.getDetailArticle(articleId);
+      const article = await this.fetchAllArticleService.getDetailArticle(articleId);
+
+      return res.status(200).json({
+        error: false,
+        message: 'successfully fetch article',
+        result: article
+      })
+
+    } catch(error: any) {
+
+      return res.status(500).json({
+        error: true,
+        message: error.message
+      })
+    }
+  }
+  
+  deleteBookmark = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+    const id: string = req.params.id;
+    const email = req.email;
+
+    if (!email) return res.status(400).json({ status: false, message: 'unathorized account' });
+    try {
+      await this.deleteArticleBookmarked.execute(email, id);
+
+      return res.status(200).json({
+        status: true,
+        message: `successfully delete article with id ${id} from bookmark`
+      })
+
+    } catch (error: any) {
+      console.log(error.message)
+
+      return res.status(404).json({
+        status: false,
+        error: `can't delete article with id ${id}`,
+        message: error.message
+      })
+    }
   }
 
   // getAllBookmarkedByUser = async (req: AuthenticatedRequest, res: Response): Promise<any> => {

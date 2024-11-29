@@ -13,12 +13,12 @@ export const authMiddleware = async (req: AuthMiddlewareRequest, res: Response, 
 
     const token = authHeader.split(' ')[1];
     console.log(req.cookies);
-    
+
     if (!refreshToken) {
         return res.status(401).send('Access Denied. No token provided.');
     }
 
-    const privateKey = 'tes';
+    const privateKey: string = process.env.JWT_PRIVATE_KEY || 'tes';
     const userDecoded: jwt.JwtPayload | string = jwt.verify(token, privateKey);
 
     if (typeof userDecoded !== 'string') {

@@ -44,8 +44,6 @@ const getNews = (req: Request, res: Response): any => {
     .get(url)
     .then((response) => {
       const { status, totalResults, articles } = response.data;
-      // const getDozens = totalResults.toString();
-      // const dozensIndex = getDozens.slice(0, getDozens.length - 1);
 
       const firstSeq = indexToNum * 10;
       const temp = firstSeq + 9;

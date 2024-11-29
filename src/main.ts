@@ -1,15 +1,13 @@
 import express, { Request, Response } from 'express';
-import getNews from './handlers/getNews';
 import { authMiddleware } from './middlewares/authMiddleware';
 import cookieParser from 'cookie-parser';
-import nation from './handlers/nation';
-import multer from 'multer';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import { mainRouter } from './routes/mainRoute';
 import { PushJournalNotification } from './internal/services/messaging/PushJournalNotification';
 import { ReceiveNotification } from './internal/services/messaging/ReceiveNotification';
 import schedule from 'node-schedule';
+import nation from './handlers/nation';
 
 // import createNewJournal, { editJournal, moodOnJournalEachDay } from './handlers/journalHandler';
 // import uploadPhotoProfile from './handlers/UserInformationHandler';
@@ -36,7 +34,7 @@ const pullNotification = new ReceiveNotification();
 
 schedule.scheduleJob('* * * * *', () => {
     // pushNotification.producer();
-})
+});
 
 // app.get('/users/journal', authMiddleware, pullNotification.consumer);
 
@@ -46,7 +44,7 @@ schedule.scheduleJob('* * * * *', () => {
 // app.get('/articles', getAllArticle);
 // app.post('/login', loginHandler);
 // app.post('/register', registerHandler);
-// app.get('/nations', nation);
+app.get('/nations', nation);
 // app.post('/journal', authMiddleware, createNewJournal);
 // app.post('/bookmark', authMiddleware, addArticleToBookmark);
 // app.post('/photo/upload', [authMiddleware, upload.single('image')], uploadPhotoProfile);

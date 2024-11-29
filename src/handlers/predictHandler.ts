@@ -7,8 +7,6 @@ export const predictHandler = async (
 ): Promise<any> => {
   const journalId = req.params.journalId;
 
-  // model
-
   const journalRepository = new JournalRepository();
 
   const updateSuccessfully = await journalRepository.journalIsPredicted(
