@@ -37,8 +37,20 @@ export class WeeklyMoodJournal {
         //return
       }
 
-      const startDate = date.getDate() - 7;
-      const endDate = date.getDate() - 1;
+      console.log('today: ', todayDayIndex);
+
+      // const indexDay = date.getDay();
+
+      // const startDate = date.getDate() - 7;
+      // const endDate = date.getDate() - 1;
+      const startDate = todayDayIndex !== 0 
+      ? date.getDate() + 1 - todayDayIndex 
+      : date.getDate() - 6;
+  
+      const endDate = todayDayIndex !== 0 
+      ? date.getDate() + 7 - todayDayIndex 
+      : date.getDate();
+          
       const yearParam = date.getFullYear();
       const monthParam = date.getMonth();
 
@@ -62,6 +74,7 @@ export class WeeklyMoodJournal {
         const data: Map<string, object[]> = new Map();
         const moodCalculate: number[][] = Array(5).fill(null).map(() => [0, 0]);
         const rateOfPercentageEach: number[] = [];
+        let max = 0;
 
         moodsJournals.map((moodJournal) => {
             if (!data.has(moodJournal.journalId)) {
@@ -71,10 +84,23 @@ export class WeeklyMoodJournal {
             moodCalculate[moodJournal.moodId][0] += moodJournal.percentage;
             moodCalculate[moodJournal.moodId][1] += 1;
 
-            data.get(moodJournal.journalId)?.push(moodJournal);
+            const journalArray = data.get(moodJournal.journalId) || [];
+            journalArray.push(moodJournal);
+            data.set(moodJournal.journalId, journalArray);
+
+            console.log(journalArray)
+        
+            if (journalArray.length > max) {
+                max = journalArray.length;
+            }
         })
 
-        console.log(moodCalculate);
+        // console.log(moodCalculate);
+        // console.log(moodCalculate.length);
+
+        for (let i = 0; i < moodCalculate.length; i++) {
+          moodCalculate[i][1] = max;
+        }
 
         moodCalculate.map((val, idx) => {
             const percents = Number(val[0] / val[1]) || 0;
@@ -82,8 +108,15 @@ export class WeeklyMoodJournal {
             rateOfPercentageEach.push(percents);
         })
 
-        console.log(rateOfPercentageEach);
+        console.log("moods-percentage ", rateOfPercentageEach);
 
-        return data;
+        const moods = ["neutral", "empty", "angry", "enthusiashm", "sad"]
+
+        const result = rateOfPercentageEach.map((val, idx) => ({
+          [moods[idx]]: val,
+        }))
+
+        // return data;
+        return result;
     }
 }

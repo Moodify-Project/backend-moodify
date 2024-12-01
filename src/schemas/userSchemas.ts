@@ -2,11 +2,11 @@ import { gender_type } from '@prisma/client';
 import { z } from 'zod';
 
 export const userRegisterSchema = z.object({
-    username: z.string(),
-    name: z.string(),
+    username: z.string().min(3).max(40).regex(/^[a-zA-Z0-9]+$/, "Please don't input symbol or character for your username"),
+    // name: z.string().nullable(),
     email: z.string().email(),
-    password: z.string().min(8).max(30).regex(/[A-Z]/).regex(/[^a-zA-Z0-9]/),
-    confirmPassword: z.string().min(8).max(30).regex(/[A-Z]/).regex(/[^a-zA-Z0-9]/),
+    password: z.string().min(8).max(30).regex(/[A-Z]/, "Require at least a capital letter on your password").regex(/[^a-zA-Z0-9]/, "Requires one symbol and number"),
+    // confirmPassword: z.string().min(8).max(30).regex(/[A-Z]/).regex(/[^a-zA-Z0-9]/).nullable(),
 });
 
 export const userLoginSchema = z.object({
@@ -15,7 +15,7 @@ export const userLoginSchema = z.object({
 });
 
 export const editProfileUserSchema = z.object({
-    name: z.string().min(6).max(40),
+    name: z.string().min(4).max(80),
     gender: z.enum([gender_type.male, gender_type.female, gender_type.secret]),
     country: z.string().min(3).max(50)
 })

@@ -132,7 +132,7 @@ export const uploadPhotoToBucketGCS = async (imgBuffer: Buffer, fileName: string
             console.log(`${bucket.name} successfully created`);
         } catch (error: any) {
             console.log('Error creating bucket:', error);
-            throw new Error(error.message)
+            // throw new Error(error.message)
             // return;
         }
     }

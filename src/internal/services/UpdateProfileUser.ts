@@ -1,5 +1,7 @@
 import { gender_type } from "@prisma/client";
 import { UserRepository } from "../repositories/UserRepository";
+import validateData from "../../utils/validateData";
+import { editProfileUserSchema } from "../../schemas/userSchemas";
 
 export class UpdateProfileUser {
     private userRepository: UserRepository;
@@ -9,6 +11,19 @@ export class UpdateProfileUser {
     }
 
     execute = async (email: string, name: string, gender: string, country: string): Promise<boolean> => {
+        const profileInfo = {
+            name,
+            gender,
+            country
+          }
+
+        const errorValidateMessage = validateData(editProfileUserSchema, profileInfo);
+
+        if (errorValidateMessage instanceof Map) {
+            const errReponseObj = Object.fromEntries(errorValidateMessage);
+            throw new Error(JSON.stringify(errReponseObj));
+        }
+
         let genderConvert = gender;
         if (gender === 'male') {
             genderConvert = gender_type.male;

@@ -44,9 +44,7 @@ export class UploadPhotoUser {
             file.buffer,
             fileName,
             bucketName
-        ).catch((error: any) => {
-            throw new Error(error.message)
-        });
+        )
 
         const picUpdated = this.userRepository.updatePhotoProfileUser(email, objectUrl);
 

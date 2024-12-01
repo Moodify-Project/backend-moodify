@@ -16,7 +16,7 @@ const baseRepository = new BaseRepository();
 const userBookmarkArticleRepository = new UserBookmarkArticleRepository();
 const articleRepository = new ArticleRepository();
 
-const bookmarkTheArticle = new BookmarkTheArticle(userBookmarkArticleRepository);
+const bookmarkTheArticle = new BookmarkTheArticle(userBookmarkArticleRepository, articleRepository);
 const fetchAllArticleService = new FetchAllArticleService(baseRepository, articleRepository);
 const articleBookmarkedByUserService = new ArticleBookmarkedByUserService(userBookmarkArticleRepository);
 const fetchBookmarkedArticle = new FetchBookmarkedArticle(userBookmarkArticleRepository, articleRepository);

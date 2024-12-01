@@ -26,6 +26,8 @@ const journalHandler = new JournalHandler(createNew, getJournalEachDay, updateJo
 
 journalRouter.post('/', authMiddleware, journalHandler.createNewToday);
 journalRouter.get('/', authMiddleware, journalHandler.getJournalEachDay);
+journalRouter.put('/', authMiddleware, journalHandler.updateJournalToday);
+journalRouter.put('/today', authMiddleware, journalHandler.updateJournalTodayWithoutQueryParams);
 journalRouter.put('/:id', authMiddleware, journalHandler.editJournal);
 journalRouter.get('/moods', authMiddleware, moodOnJournalEachDay);
 journalRouter.get('/moods/weekly', authMiddleware, journalHandler.fetchWeeklyMood);

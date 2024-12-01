@@ -3,6 +3,8 @@ import { UploadPhotoUser } from "../internal/services/UploadPhotoUser";
 import { AuthenticatedRequest } from "../../types/interfaces/interface.common";
 import { UpdateProfileUser } from "../internal/services/UpdateProfileUser";
 import { SpecificInfoUser } from "../internal/services/SpecificInfoUser";
+import validateData from "../utils/validateData";
+import { editProfileUserSchema } from "../schemas/userSchemas";
 
 
 export class UserInformationHandler {
@@ -69,19 +71,33 @@ export class UserInformationHandler {
 
     const { name, gender, country } = body;
 
-    const profileUpdated = await this.updateProfileUser.execute(email, name, gender, country);
+    try {
+      const profileUpdated = await this.updateProfileUser.execute(email, name, gender, country);
 
-    if (!profileUpdated) {
+      if (!profileUpdated) {
+        return res.status(400).json({
+          status: false,
+          message: "Can't update profile due to lack of request body",
+        });
+      }
+  
+      return res.status(200).json({
+        status: profileUpdated,
+        message: "Success update your profile",
+      });
+
+    } catch (error: any) {
+      
+      const errorMsg = JSON.parse(error.message);
+
+      console.log(errorMsg);
+  
       return res.status(400).json({
         status: false,
-        message: "Can't update profile due to lack of request body",
+        error_msg: errorMsg,
       });
     }
 
-    return res.status(200).json({
-      status: profileUpdated,
-      message: "Success update your profile",
-    });
   }
 
   getDetail = async (req: AuthenticatedRequest, res: Response): Promise<any> => {

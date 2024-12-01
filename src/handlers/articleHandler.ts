@@ -46,15 +46,22 @@ export class ArticleHandler {
       const articleSuccessBookmarked = await this.bookmarkTheArticle.execute(email, articleId);
 
       if (articleSuccessBookmarked) {
-        res.status(201).json({
+        return res.status(201).json({
           status: true,
           message: `Success bookmarked article with id: ${articleId}`,
         })
       }
 
-    } catch (err) {
+    } catch (err: any) {
+      if (err.message === "Article not found") {
+        return res.status(404).json({
+          status: false,
+          message: `Article with id: ${articleId} is not found`,
+        })
+      }
+
       console.log("Conflict error: ", err);
-      res.status(409).json({
+      return res.status(409).json({
         status: false,
         message: 'User already bookmarked this article'
       })
@@ -81,7 +88,7 @@ export class ArticleHandler {
       if (error.message === 'Invalid URL') {
         return res.status(503).json({
           status: false,
-          message: "Check whether url of Redis server is valid pr not",
+          message: "Check whether url of Redis server is valid or not",
           error: error.message
         });
       }
@@ -109,19 +116,12 @@ export class ArticleHandler {
     });
   }
 
-  unbookmarkArticle = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
-    const { email } = req;
+  getSpecificArticleContent = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
     const { id } = req.params;
 
-    
-  }
-
-  getSpecificArticleContent = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
-    const { articleId } = req.params;
-
     try {
-      // const { id, source, author, title, description, url, urlToImage, publishedAt, content } = await this.fetchAllArticleService.getDetailArticle(articleId);
-      const article = await this.fetchAllArticleService.getDetailArticle(articleId);
+      // const { id, source, author, title, description, url, urlToImage, publishedAt, content } = await this.fetchAllArticleService.getDetailArticle(id);
+      const article = await this.fetchAllArticleService.getDetailArticle(id);
 
       return res.status(200).json({
         error: false,
@@ -161,22 +161,4 @@ export class ArticleHandler {
       })
     }
   }
-
-  // getAllBookmarkedByUser = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
-  //   const { email, body } = req;
-  //   if (!email) {
-  //     return res.status(401).json({
-  //       error: true,
-  //       message: 'User need to authenticate first'
-  //     })
-  //   }
-
-  //   const articlesBookmarked = await this.articleBookmarkedByUserService.findAll(email);
-
-  //   res.status(200).json({
-  //     error: true,
-  //     message: 'Successfully fetch all bookmark data from user',
-  //     result: articlesBookmarked
-  //   })
-  // }
 }

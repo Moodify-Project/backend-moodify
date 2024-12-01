@@ -81,17 +81,24 @@ export class AuthenticationHandler {
         success: true,
         message: 'success registered',
       });
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         return res.status(404).json({
           success: false,
           message: "Username or email already registered",
         });
       }
-      return res.status(500).json({
-        success: false,
-        message: error,
-      });
+      else {
+        const errorMsg = JSON.parse(error.message);
+
+        console.log(errorMsg);
+
+        return res.status(422).json({
+          status: false,
+          message: "Validation error when create new account",
+          errors: errorMsg,
+        });
+      }
     }
   }
   useRefreshToken = async (req: AuthenticatedRequest, res: Response): Promise<any> => {

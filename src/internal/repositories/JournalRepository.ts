@@ -87,4 +87,20 @@ export class JournalRepository
         }
       })
     }
+
+    updateJournalByDate = async(email: string, journal: Journal, todayDateString: string) => {
+      return await JournalRepository._prisma.journal.updateMany({
+        where: {
+          emailAuthor: email,
+          createdAt: {
+            gte: new Date(`${todayDateString} 00:00:00`),
+            lte: new Date(`${todayDateString} 23:59:59`)
+          }
+        },
+        data: {
+          content: journal.content,
+          updatedAt: journal.updatedAt
+        }
+      })
+    }
 }

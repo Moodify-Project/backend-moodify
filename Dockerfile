@@ -5,6 +5,7 @@ WORKDIR /app
 COPY . .
 
 RUN npm install
+RUN npm install -g prisma@5.22.0
 
 RUN npm build
 

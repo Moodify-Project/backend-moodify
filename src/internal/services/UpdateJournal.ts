@@ -14,8 +14,6 @@ export class UpdateJournal {
     execute = async (journalId: string, journal: Journal): Promise<void> => {
         const todayDateString = getTodayDateString();
 
-        validateData(journalSchema, journal); // TODO
-
         await this.journalRepository
         .findJournalById(journalId)
         .then((journal: Journal | null) => {
@@ -48,4 +46,57 @@ export class UpdateJournal {
             throw new Error('UnexpectedErrorOccurs');
         }
     }
+
+    validateJournalRequest = (email: string, journal: Journal, journalId?: string): string | null => {
+        const dataFix = {
+            journalId,
+            emailAuthor: email,
+            content: journal.content,
+        }
+
+        const errorValidate = validateData(journalSchema, dataFix);
+    
+        if (errorValidate instanceof Map) {
+            const errorResponseObj = Object.fromEntries(errorValidate);
+            return JSON.stringify(errorResponseObj);
+        }
+    
+        return null;
+    };
+
+    executeWithDate = async (email: string, journal: Journal, queryDate?: string): Promise<void> => {
+        if (!queryDate) throw new Error('expected query of journal date');
+    
+        const todayDate = new Date(Date.now());
+    
+        const [year, month, date] = queryDate.split("-").map(Number);
+        if (!year || !month || !date) throw new Error('Invalid queryDate format');
+    
+        const nextDate = new Date(year, month - 1, date + 1, 7, 59, 59);
+        const previousDate = new Date(year, month - 1, date, 8, 0, 0);
+
+        console.log(nextDate)
+        console.log(previousDate)
+    
+        if (todayDate > nextDate || todayDate < previousDate) {
+            throw new Error("can't update n-passed day after or before it's creation");
+        }
+    
+        const journalSuccessfullyUpdated = await this.journalRepository.updateJournalByDate(email, journal, queryDate);
+    
+        if (!journalSuccessfullyUpdated) {
+            throw new Error('UnexpectedErrorOccurs');
+        }
+    };
+
+    executeToday = async (email: string, journal: Journal): Promise<void> => {
+        const todayDateString = getTodayDateString();
+
+        const journalSuccessfullyUpdated = await this.journalRepository.updateJournalByDate(email, journal, todayDateString);
+    
+        if (!journalSuccessfullyUpdated) {
+            throw new Error('UnexpectedErrorOccurs');
+        }
+    }
+    
 }

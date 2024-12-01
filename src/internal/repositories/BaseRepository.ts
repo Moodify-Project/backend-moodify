@@ -1,10 +1,11 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import { prisma } from "../configs/prisma";
 
 export class BaseRepository {
     public static _prisma: PrismaClient;
 
     constructor() {
-        BaseRepository._prisma = new PrismaClient();
+        BaseRepository._prisma = prisma;
     }
 
     getAllArticleIdFromDB = async () => {
