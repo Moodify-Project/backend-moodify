@@ -112,9 +112,14 @@ export class WeeklyMoodJournal {
 
         const moods = ["neutral", "empty", "angry", "enthusiashm", "sad"]
 
-        const result = rateOfPercentageEach.map((val, idx) => ({
-          [moods[idx]]: val,
-        }))
+        // const result = rateOfPercentageEach.map((val, idx) => ({
+        //   [moods[idx]]: val,
+        // }))
+
+        const result = rateOfPercentageEach.reduce((acc: { [key: string] : number }, val, idx) => {
+          acc[moods[idx]] = val;
+          return acc;
+        }, {});
 
         // return data;
         return result;
