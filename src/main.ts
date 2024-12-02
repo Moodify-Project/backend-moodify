@@ -8,6 +8,7 @@ import { PushJournalNotification } from './internal/services/messaging/PushJourn
 import { ReceiveNotification } from './internal/services/messaging/ReceiveNotification';
 import schedule from 'node-schedule';
 import nation from './handlers/nation';
+import { predictHandler } from './handlers/predictHandler';
 
 // import createNewJournal, { editJournal, moodOnJournalEachDay } from './handlers/journalHandler';
 // import uploadPhotoProfile from './handlers/UserInformationHandler';
@@ -27,6 +28,7 @@ app.use(cors({
 }));
 
 app.use('/api/v1', mainRouter);
+app.post('/predict', predictHandler);
 
 const pushNotification = new PushJournalNotification();
 
