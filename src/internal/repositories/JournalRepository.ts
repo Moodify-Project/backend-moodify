@@ -67,9 +67,12 @@ export class JournalRepository
   }
 
   unwrittenJournalToday = async(todayDateString: string): Promise<any> => {
+    const startOfDay = `${todayDateString} 00:00:00`;
+    const endOfDay = `${todayDateString} 23:00:00`;
+
     return await JournalRepository._prisma.$queryRaw`SELECT DISTINCT user.email, 
       COUNT(journal.journalId) AS journal_count FROM user LEFT JOIN journal ON user.email = journal.emailAuthor 
-      AND (journal.createdAt IS NULL OR journal.createdAt BETWEEN '2024-11-22 00:00:00' AND '2024-11-22 23:00:00') 
+      AND (journal.createdAt IS NULL OR journal.createdAt BETWEEN ${startOfDay} AND ${endOfDay}) 
       GROUP BY user.email;`
     }
 
@@ -100,6 +103,18 @@ export class JournalRepository
         data: {
           content: journal.content,
           updatedAt: journal.updatedAt
+        }
+      })
+    }
+
+    updateJournalIsPredicted = async(id: string) => {
+      return await JournalRepository._prisma.journal.update({
+        where: {
+          journalId: id
+        },
+        data: {
+          isPredicted: true,
+          // isPredicted: false,
         }
       })
     }

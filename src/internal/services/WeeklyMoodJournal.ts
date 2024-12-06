@@ -76,13 +76,13 @@ export class WeeklyMoodJournal {
         const rateOfPercentageEach: number[] = [];
         let max = 0;
 
-        moodsJournals.map((moodJournal) => {
+        moodsJournals?.map((moodJournal) => {
             if (!data.has(moodJournal.journalId)) {
                 data.set(moodJournal.journalId, [])
             }
             
-            moodCalculate[moodJournal.moodId][0] += moodJournal.percentage;
-            moodCalculate[moodJournal.moodId][1] += 1;
+            moodCalculate[moodJournal.moodId - 1][0] += moodJournal.percentage;
+            moodCalculate[moodJournal.moodId - 1][1] += 1;
 
             const journalArray = data.get(moodJournal.journalId) || [];
             journalArray.push(moodJournal);
@@ -103,9 +103,10 @@ export class WeeklyMoodJournal {
         }
 
         moodCalculate.map((val, idx) => {
-            const percents = Number(val[0] / val[1]) || 0;
+            // const percents = Number(val[0] / val[1]) || 0;
+            const percents = Number(val[0] / journals.length) || 0;
 
-            rateOfPercentageEach.push(percents);
+            rateOfPercentageEach.push(Math.floor(percents));
         })
 
         console.log("moods-percentage ", rateOfPercentageEach);

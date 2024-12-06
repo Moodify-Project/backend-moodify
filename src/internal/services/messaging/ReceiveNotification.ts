@@ -4,7 +4,7 @@ import pubSubConfig from "../../configs/pubsub";
 import { scheduleJob } from "node-schedule";
 
 export class ReceiveNotification {
-    consumer = async (req: AuthenticatedRequest, res: Response) => {
+    consumer = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
         const topicName = process.env.PUBSUB_TOPIC_NAME || "journal-notification";
         const subscriptionName = process.env.PUBSUB_SUBCRIPTION_NAME || "journal-subscription";
         const projectId = process.env.PROJECT_ID || "tes-moodify";
@@ -15,7 +15,6 @@ export class ReceiveNotification {
         const getMessageOrError = new Promise((resolve, reject) => {
             const messageHandler = (message: any) => {
                 console.log(`Received message: ${message.data.toString()}`);
-                message.ack();
                 // subscribe.removeListener('message', messageHandler); // Stop listening
                 // subscribe.removeListener('error', errorHandler); // Stop listening
 
@@ -33,6 +32,8 @@ export class ReceiveNotification {
 
                 resolve(selectedEmail?.journal_count);
 
+                message.ack();
+
                 
             }
 
@@ -45,38 +46,30 @@ export class ReceiveNotification {
 
             subscribe.on('message', messageHandler);
             subscribe.on('error', errorHandler);
-
-            setTimeout(() => {
-                subscribe.removeListener('message', messageHandler);
-                subscribe.removeListener('error', errorHandler);
-                reject(new Error("Timeout waiting for Pub/Sub message."));
-            }, 5000);
         })
 
-        // TODO: check again
-        scheduleJob('2 * * * *', async () => {
             try {
                 const messageData = await getMessageOrError;
     
                 if (messageData === 0) {
-                    res.status(200).json({
+                    return res.status(200).json({
                         error: false,
                         message: "Please create your journal",
                     });
                 } else {
-                    res.status(404).json({
+                    return res.status(404).json({
                         error: true,
                         message: 'No notification found, user already create journal',
                     });
                 }
             } catch (error: any) {
-                res.status(500).json({
+                return res.status(500).json({
                     error: false,
                     message: error.message,
                     reason: "Article only can fetched 1 time"
                 });
             }
-        })
+        
 
     };
 }

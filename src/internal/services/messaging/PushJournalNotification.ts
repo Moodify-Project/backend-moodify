@@ -3,7 +3,7 @@ import pubSubConfig from "../../configs/pubsub";
 import { JournalRepository } from "../../repositories/JournalRepository";
 
 export class PushJournalNotification {
-    producer = async (email: string = "agung@gmail.com") => {
+    producer = async () => {
         const topicName = process.env.PUBSUB_TOPIC_NAME || 'journal-notification';
         const subscriptionName = process.env.PUBSUB_SUBCRIPTION_NAME || 'journal-subscription';
         const projectId = process.env.PROJECT_ID || 'tes-moodify';

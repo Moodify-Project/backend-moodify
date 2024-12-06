@@ -48,7 +48,7 @@ export const predictHandler = async (
   const response = await fetch(tokenizerURL);
   const tokenData = await response.json();
 
-  // console.log(tokenData) don't
+  // console.log(tokenData) don't log this
 
   // const texts = ["feel", "like"];
 
@@ -61,7 +61,7 @@ export const predictHandler = async (
 
   // load model and predict
   const modelURL = String(process.env.MODEL_URL);
-  const model = await tf.loadLayersModel(modelURL);
+  const model = await tf.loadGraphModel(modelURL);
 
   const probabilityArray = model.predict(seq);
 

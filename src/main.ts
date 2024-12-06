@@ -10,11 +10,6 @@ import schedule from 'node-schedule';
 import nation from './handlers/nation';
 import { predictHandler } from './handlers/predictHandler';
 
-// import createNewJournal, { editJournal, moodOnJournalEachDay } from './handlers/journalHandler';
-// import uploadPhotoProfile from './handlers/UserInformationHandler';
-// import loginHandler, { registerHandler } from './handlers/loginHandler';
-// import { predictHandler } from './handlers/predictHandler';
-// import { addArticleToBookmark, getAllArticle } from './handlers/articleHandler';
 dotenv.config();
 
 const app = express();
@@ -23,9 +18,7 @@ const port = 8000;
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({
-    origin: 'http://localhost:3000'
-}));
+app.use(cors());
 
 app.use('/api/v1', mainRouter);
 app.post('/predict', predictHandler);
@@ -34,25 +27,14 @@ const pushNotification = new PushJournalNotification();
 
 const pullNotification = new ReceiveNotification();
 
-schedule.scheduleJob('* * * * *', () => {
-    // pushNotification.producer();
-});
+// schedule.scheduleJob('* * * * *', () => {
+//     pushNotification.producer();
+// });
 
-// app.get('/users/journal', authMiddleware, pullNotification.consumer);
+// app.get('/api/v1/notifications', authMiddleware, pullNotification.consumer);
 
 
-// TODO: store all routes in one file route.ts
-// app.get('/news', getNews);
-// app.get('/articles', getAllArticle);
-// app.post('/login', loginHandler);
-// app.post('/register', registerHandler);
 app.get('/nations', nation);
-// app.post('/journal', authMiddleware, createNewJournal);
-// app.post('/bookmark', authMiddleware, addArticleToBookmark);
-// app.post('/photo/upload', [authMiddleware, upload.single('image')], uploadPhotoProfile);
-// app.put('/journal/:journalId', authMiddleware, editJournal);
-// app.get('/journal_mood', authMiddleware, moodOnJournalEachDay);
-// app.put('/journals/:journalId/predict', predictHandler)
 app.get('/hello', authMiddleware, () => {
     console.log("hello word");
 })

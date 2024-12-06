@@ -1,5 +1,11 @@
 import { BaseRepository } from "./BaseRepository";
 
+export interface MoodOnJournal {
+    moodId: number;
+    journalId: string;
+    percentage: number;
+}
+
 export class MoodOnJournalRepository extends BaseRepository {
     async getPercentage(journalId: string): Promise<any> {
         return await MoodOnJournalRepository._prisma.moodOnJournal.findFirst({
@@ -31,5 +37,11 @@ export class MoodOnJournalRepository extends BaseRepository {
                 },
             },
         });
-    } 
+    }
+
+    postNewMoodOnPredictedJournal = async (moodData: MoodOnJournal[]) => {
+        return await MoodOnJournalRepository._prisma.moodOnJournal.createMany({
+            data: moodData
+        })
+    }
 }

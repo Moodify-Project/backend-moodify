@@ -2,14 +2,18 @@ import { Article } from "../../../types/interfaces/interface.common";
 import { redisClient } from "../configs/redis";
 import { ArticleRepository } from "../repositories/ArticleRepository";
 import { BaseRepository } from "../repositories/BaseRepository";
+import { UserBookmarkArticleRepository } from "../repositories/BookmarkArticleRepository";
+import { MoodOnJournalRepository } from "../repositories/MoodOnJournalRepository";
 
 export class FetchAllArticleService {
     private baseRepository: BaseRepository;
     private articleRepository: ArticleRepository;
+    private userBookmarkArticleRepository: UserBookmarkArticleRepository;
 
-    constructor(baseRepository: BaseRepository, articleRepository: ArticleRepository) {
+    constructor(baseRepository: BaseRepository, articleRepository: ArticleRepository, userBookmarkArticleRepository: UserBookmarkArticleRepository) {
         this.baseRepository = baseRepository;
         this.articleRepository = articleRepository;
+        this.userBookmarkArticleRepository = userBookmarkArticleRepository;
     }
 
     findAll = async (index: number): Promise<Article[]> => {
@@ -57,8 +61,27 @@ export class FetchAllArticleService {
         return newArr;
     }
 
-    getDetailArticle = async (articleId: string): Promise<Article> => {
-      return await this.articleRepository.findArticleById(articleId);
+    getDetailArticle = async (articleId: string): Promise<any> => {
+      const articleInfo = await this.articleRepository.findArticleById(articleId);
+
+      const { id, source, author, title, description, url, urlToImage, publishedAt, content } = articleInfo;
+
+      const countBookmarked = await this.userBookmarkArticleRepository.countBookmarkedArticle(articleId);
+
+      const data = {
+        id,
+        source,
+        author,
+        title,
+        description,
+        url,
+        urlToImage,
+        publishedAt,
+        content,
+        countBookmarked
+      };
+
+      return data;
     }
 
 }
