@@ -1,86 +1,8 @@
-// import { BucketMetadata, Storage } from '@google-cloud/storage';
-// import stream from 'stream';
-
-// export const checkBucketExist = async (bucketName: string): Promise<boolean> => {
-//     const storage = new Storage({
-//         keyFilename: 'D:/DEV_REACT/backend-moodify/bucketCredentialKey.json'
-//     });
-//     // const bucketName = 'bucket-profile';
-
-//     try {
-//         const [metadata] = await storage.bucket(bucketName).getMetadata();
-//         if (metadata) {
-//             return true;
-//         }
-//     } catch(error) {
-//         console.log(error);
-//         return false;
-//     }
-
-//     return false;
-
-//     // return metadata;
-// }
-
-// // datatype file buffer?
-
-// const uploadFileThroughStream = async (fileBuffer: Buffer, bucketName: string, fileName: string) => {
-//     const storage = new Storage();
-
-//     const photoBucket = storage.bucket(bucketName);
-
-//     const file = photoBucket.file(fileName);
-
-//     file.createWriteStream({
-//         resumable: false,
-//         gzip: true,
-//     })
-//     .on('finish', () => {})
-//     .on('error', (err) => {})
-//     .end(fileBuffer);
-
-
-// }
-
-// export const uploadPhotoToBucketGCS = async (imgBuffer: Buffer, fileName: string) => {
-//     const storage = new Storage();
-
-//     const bucketName = 'bucket-profile';
-//     const storageClass = 'standard';
-//     const location = 'ASIA';
-
-//     // create bucket if no bucket when new image uploaded
-//     const bucketExist = await checkBucketExist(bucketName);
-//     // check bucket exist
-
-//     if (bucketExist) {
-//         try {
-//             const [bucket] = await storage.createBucket(bucketName, {
-//                 location,
-//                 [storageClass]: true,
-//             });
-    
-//             console.log(`${bucket.name} successfully created`);
-//         } catch(error) {
-//             console.log(error);
-//         }
-//     }
-
-//     else {
-//         await uploadFileThroughStream(imgBuffer, bucketName, fileName)
-//     }
-
-
-// }
-
-
 import { Storage } from '@google-cloud/storage';
-import stream from 'stream';
+import { storageConfig } from '../internal/configs/bucket';
 
 const checkBucketExist = async (bucketName: string): Promise<boolean> => {
-    const storage = new Storage({
-        keyFilename: 'D:/DEV_REACT/backend-moodify/bucketCredentialKey.json'
-    });
+    const storage = storageConfig();
 
     try {
         const [metadata] = await storage.bucket(bucketName).getMetadata();
@@ -92,9 +14,7 @@ const checkBucketExist = async (bucketName: string): Promise<boolean> => {
 };
 
 const uploadFileThroughStream = async (fileBuffer: Buffer, bucketName: string, fileName: string) => {
-    const storage = new Storage({
-        keyFilename: process.env.BUCKET_AUTH_PATH || 'D:/DEV_REACT/backend-moodify/bucketCredentialKey.json'
-    });
+    const storage = storageConfig();
 
     const photoBucket = storage.bucket(bucketName);
     const file = photoBucket.file(fileName);
@@ -114,9 +34,7 @@ const uploadFileThroughStream = async (fileBuffer: Buffer, bucketName: string, f
 };
 
 export const uploadPhotoToBucketGCS = async (imgBuffer: Buffer, fileName: string, bucketName: string): Promise<string> => {
-    const storage = new Storage({
-        keyFilename: process.env.BUCKET_CREDENTIAL_PATH || 'D:/DEV_REACT/backend-moodify/bucketCredentialKey.json'
-    });
+    const storage = storageConfig();
 
     const location = 'ASIA-SOUTHEAST2';
 
@@ -128,12 +46,10 @@ export const uploadPhotoToBucketGCS = async (imgBuffer: Buffer, fileName: string
                 location,
                 storageClass: 'STANDARD',
             });
-            // await storage.bucket(bucketName).makePublic();
+
             console.log(`${bucket.name} successfully created`);
         } catch (error: any) {
             console.log('Error creating bucket:', error);
-            // throw new Error(error.message)
-            // return;
         }
     }
 

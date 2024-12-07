@@ -22,7 +22,7 @@ export class PredictService {
     }
 
     predictedJournal = async (id: string, content: string) => {
-        const predictURL = process.env.PREDICT_URL || "https://predict-mood-984115553240.asia-southeast2.run.app/predict";
+        const predictURL = String(process.env.PREDICT_URL);
         
         try {
            const response = await axios.post(predictURL, { sentence: content });
@@ -55,9 +55,6 @@ export class PredictService {
            console.log(moodData);
 
            await this.moodOnJournalRepository.postNewMoodOnPredictedJournal(moodData);
-
-
-
 
         } catch (error: any) {
             console.log(error.message);

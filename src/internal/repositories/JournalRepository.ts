@@ -66,9 +66,9 @@ export class JournalRepository
     });
   }
 
-  unwrittenJournalToday = async(todayDateString: string): Promise<any> => {
-    const startOfDay = `${todayDateString} 00:00:00`;
-    const endOfDay = `${todayDateString} 23:00:00`;
+  unwrittenJournalToday = async(todayDateString: string, yesterdayString: string): Promise<any> => {
+    const startOfDay = `${yesterdayString} 16:00:00`;
+    const endOfDay = `${todayDateString} 15:59:00`;
 
     return await JournalRepository._prisma.$queryRaw`SELECT DISTINCT user.email, 
       COUNT(journal.journalId) AS journal_count FROM user LEFT JOIN journal ON user.email = journal.emailAuthor 
@@ -114,7 +114,6 @@ export class JournalRepository
         },
         data: {
           isPredicted: true,
-          // isPredicted: false,
         }
       })
     }

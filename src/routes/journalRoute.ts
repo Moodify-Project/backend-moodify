@@ -22,7 +22,7 @@ const getJournalEachDay = new FindDailyJournal(journalRepository);
 const createNew = new CreateNewJournal(journalRepository);
 const updateJournal = new UpdateJournal(journalRepository);
 const moodOnJournalService = new MoodOnJournalServices(journalRepository, moodOnJournalRepository);
-const weeklyMoodJournal = new WeeklyMoodJournal(journalRepository, moodOnJournalRepository);
+const weeklyMoodJournal = new WeeklyMoodJournal(journalRepository, moodOnJournalRepository, moodRepository);
 
 const predictService = new PredictService(journalRepository, moodRepository, moodOnJournalRepository);
 

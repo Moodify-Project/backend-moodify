@@ -1,13 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
-
-interface AuthMiddlewareRequest extends Request {
-    // email or username
-    email?: string;
-}
+import { AuthenticatedRequest } from "../../types/interfaces/interface.common";
 
 // TODO: auth middleware lack of check and error handling
-export const authMiddleware = async (req: AuthMiddlewareRequest, res: Response, next: NextFunction): Promise<any> => {
+export const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<any> => {
     const authHeader: string = req.headers?.authorization || '';
     const refreshToken = req.cookies?.refreshToken;
 

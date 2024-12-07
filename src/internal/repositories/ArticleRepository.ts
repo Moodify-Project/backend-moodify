@@ -13,14 +13,6 @@ export class ArticleRepository extends BaseRepository {
         });
     }
 
-    // findArticleById = async(articleId: string): Promise<Article> => {
-    //     return await ArticleRepository._prisma.article.findFirstOrThrow({
-    //         where: {
-    //             id: articleId
-    //         }
-    //     })
-    // }
-
     findArticleById = async (articleId: string): Promise<Article> => {
         try {
             return await ArticleRepository._prisma.article.findFirstOrThrow({

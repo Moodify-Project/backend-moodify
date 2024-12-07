@@ -1,15 +1,18 @@
 import { getTodayDateString } from "../../utils/todayString";
 import { JournalRepository } from "../repositories/JournalRepository";
 import { MoodOnJournalRepository } from "../repositories/MoodOnJournalRepository";
+import { MoodRepository } from "../repositories/MoodRepository";
 
 export class WeeklyMoodJournal {
     private journalRepository: JournalRepository;
     private moodOnJournalRepository: MoodOnJournalRepository;
+    private moodRepository: MoodRepository;
 
 
-    constructor(journalRepository: JournalRepository, moodOnJournalRepository: MoodOnJournalRepository) {
+    constructor(journalRepository: JournalRepository, moodOnJournalRepository: MoodOnJournalRepository, moodRepository: MoodRepository) {
         this.journalRepository = journalRepository;
         this.moodOnJournalRepository = moodOnJournalRepository;
+        this.moodRepository = moodRepository;
     }
 
     execute = async(email: string, dateQuery: string) => {
@@ -32,17 +35,8 @@ export class WeeklyMoodJournal {
 
       const todayDayIndex = date.getDay();
 
-      if (todayDayIndex !== 0) {
-        // logic not sunday
-        //return
-      }
-
       console.log('today: ', todayDayIndex);
 
-      // const indexDay = date.getDay();
-
-      // const startDate = date.getDate() - 7;
-      // const endDate = date.getDate() - 1;
       const startDate = todayDayIndex !== 0 
       ? date.getDate() + 1 - todayDayIndex 
       : date.getDate() - 6;
@@ -95,9 +89,6 @@ export class WeeklyMoodJournal {
             }
         })
 
-        // console.log(moodCalculate);
-        // console.log(moodCalculate.length);
-
         for (let i = 0; i < moodCalculate.length; i++) {
           moodCalculate[i][1] = max;
         }
@@ -111,18 +102,18 @@ export class WeeklyMoodJournal {
 
         console.log("moods-percentage ", rateOfPercentageEach);
 
-        const moods = ["neutral", "empty", "angry", "enthusiashm", "sad"]
+        const moods: string[] = [];
 
-        // const result = rateOfPercentageEach.map((val, idx) => ({
-        //   [moods[idx]]: val,
-        // }))
+        const moodKey = await this.moodRepository.getAllMoodKey();
+        moodKey.forEach((val) => {
+          moods.push(val.moodName)
+        })
 
         const result = rateOfPercentageEach.reduce((acc: { [key: string] : number }, val, idx) => {
           acc[moods[idx]] = val;
           return acc;
         }, {});
 
-        // return data;
         return result;
     }
 }

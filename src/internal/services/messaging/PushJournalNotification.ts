@@ -1,4 +1,4 @@
-import { getTodayDateString } from "../../../utils/todayString";
+import { getTodayDateString, getYesterdayDateString } from "../../../utils/todayString";
 import pubSubConfig from "../../configs/pubsub";
 import { JournalRepository } from "../../repositories/JournalRepository";
 
@@ -26,8 +26,8 @@ export class PushJournalNotification {
 
         const journalRepository = new JournalRepository();
         const todayString = getTodayDateString();
-
-        const emailUsers = await journalRepository.unwrittenJournalToday(todayString);
+        const yesterdayString = getYesterdayDateString();
+        const emailUsers = await journalRepository.unwrittenJournalToday(todayString, yesterdayString);
 
         console.log(emailUsers);
 

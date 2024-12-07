@@ -36,8 +36,6 @@ export class Transaction {
         }
       });
 
-      // console.log(moods)
-
       const moodRecapEachDay = {
         journalId,
         moods

@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { authMiddleware } from './middlewares/authMiddleware';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
@@ -6,9 +6,9 @@ import cors from 'cors';
 import { mainRouter } from './routes/mainRoute';
 import { PushJournalNotification } from './internal/services/messaging/PushJournalNotification';
 import { ReceiveNotification } from './internal/services/messaging/ReceiveNotification';
-import schedule from 'node-schedule';
 import nation from './handlers/nation';
 import { predictHandler } from './handlers/predictHandler';
+import schedule from 'node-schedule';
 
 dotenv.config();
 
@@ -27,11 +27,11 @@ const pushNotification = new PushJournalNotification();
 
 const pullNotification = new ReceiveNotification();
 
-schedule.scheduleJob('*/2 * * * *', () => {
-    pushNotification.producer();
-});
+// schedule.scheduleJob('*/2 * * * *', () => {
+//     pushNotification.producer();
+// });
 
-app.get('/api/v1/notifications', authMiddleware, pullNotification.consumer);
+// app.get('/api/v1/notifications', authMiddleware, pullNotification.consumer);
 
 
 app.get('/nations', nation);
