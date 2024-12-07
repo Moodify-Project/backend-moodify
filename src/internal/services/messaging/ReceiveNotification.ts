@@ -1,75 +1,79 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "../../../../types/interfaces/interface.common";
 import pubSubConfig from "../../configs/pubsub";
-import { scheduleJob } from "node-schedule";
+import { v1 } from "@google-cloud/pubsub";
 
 export class ReceiveNotification {
     consumer = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
-        const topicName = process.env.PUBSUB_TOPIC_NAME || "journal-notification";
-        const subscriptionName = process.env.PUBSUB_SUBCRIPTION_NAME || "journal-subscription";
-        const projectId = process.env.PROJECT_ID || "tes-moodify";
+        try {
+            const topicName = process.env.PUBSUB_TOPIC_NAME || "journal-notification";
+            const projectId = process.env.PROJECT_ID || "tes-moodify";
 
-        const pubsub = pubSubConfig(projectId);
-        const subscribe = pubsub.subscription(subscriptionName);
+            const pubsub = pubSubConfig(projectId);
+            const [subscriptions] = await pubsub.getSubscriptions();
 
-        const getMessageOrError = new Promise((resolve, reject) => {
-            const messageHandler = (message: any) => {
-                console.log(`Received message: ${message.data.toString()}`);
-                // subscribe.removeListener('message', messageHandler); // Stop listening
-                // subscribe.removeListener('error', errorHandler); // Stop listening
+            const subClient = new v1.SubscriberClient();
 
-                const parsedJson = JSON.parse(message.data.toString());
-                const emails = parsedJson.result;
+            const sanitizedEmail = req.email?.replace(/@/g, "-at-").replace(/\./g, "-dot-");
+            
+            const subscriptionName = `projects/${projectId}/subscriptions/user-${sanitizedEmail}-subscription`;
 
-                console.log(emails);
-                console.log(req.email);
-
-                const selectedEmail = emails.find((result: any) => {
-                    return result.email?.toLowerCase().trim() === req.email?.toLowerCase().trim()
+            if (!subscriptions.find(sub => sub.name === subscriptionName)) {
+                return res.status(404).json({
+                    error: true,
+                    message: `Subscription ${subscriptionName} does not exist.`,
                 });
-
-                console.log(selectedEmail);
-
-                resolve(selectedEmail?.journal_count);
-
-                message.ack();
-
-                
             }
 
-            const errorHandler = (error: any) => {
-                console.error('Pub/Sub error:', error);
-                // subscribe.removeListener('message', messageHandler); // Stop listening
-                // subscribe.removeListener('error', errorHandler); // Stop listening
-                reject(error);
-            };
 
-            subscribe.on('message', messageHandler);
-            subscribe.on('error', errorHandler);
-        })
+                const [response] = await subClient.pull({
+                    subscription: subscriptionName,
+                    maxMessages: 1,
+                });
 
-            try {
-                const messageData = await getMessageOrError;
-    
-                if (messageData === 0) {
-                    return res.status(200).json({
-                        error: false,
-                        message: "Please create your journal",
-                    });
-                } else {
-                    return res.status(404).json({
-                        error: true,
-                        message: 'No notification found, user already create journal',
-                    });
+                if (response.receivedMessages) {
+                    for (const message of response.receivedMessages) {
+                        const parsedMessage = JSON.parse(message.message?.data?.toString() || "");
+
+                        const emails = parsedMessage.result;
+                        console.log(emails);
+                        
+                        const selectedEmail = emails.find((result: any) =>
+                            result.email?.toLowerCase().trim() === req.email?.toLowerCase().trim()
+                        );
+
+                        if (selectedEmail && message.ackId) {
+                            console.log("Selected Email:", selectedEmail);
+
+                            // Acknowledge the message
+                            await subClient.acknowledge({
+                                subscription: subscriptionName,
+                                ackIds: [message.ackId],
+                            });
+
+                            // Send response and exit the loop
+                            return res.status(200).json({
+                                error: false,
+                                message: "Notification fetched successfully",
+                                journal_count:
+                                    Number(selectedEmail.journal_count) === 0
+                                        ? "Please create your journal"
+                                        : "User already create journal",
+                            });
+                        }
+                    }
                 }
-            } catch (error: any) {
-                return res.status(500).json({
-                    error: false,
-                    message: error.message,
-                    reason: "Article only can fetched 1 time"
-                });
-            }
-        
 
+            return res.status(404).json({
+                error: true,
+                message: "No matching notification found.",
+            });
+        } catch (error: any) {
+            console.error("Error processing notifications:", error);
+            return res.status(500).json({
+                error: true,
+                message: "An error occurred while processing notifications.",
+            });
+        }
     };
 }

@@ -27,11 +27,11 @@ const pushNotification = new PushJournalNotification();
 
 const pullNotification = new ReceiveNotification();
 
-// schedule.scheduleJob('* * * * *', () => {
-//     pushNotification.producer();
-// });
+schedule.scheduleJob('*/2 * * * *', () => {
+    pushNotification.producer();
+});
 
-// app.get('/api/v1/notifications', authMiddleware, pullNotification.consumer);
+app.get('/api/v1/notifications', authMiddleware, pullNotification.consumer);
 
 
 app.get('/nations', nation);
