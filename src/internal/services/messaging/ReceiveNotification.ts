@@ -8,61 +8,61 @@ export class ReceiveNotification {
         try {
             const topicName = process.env.PUBSUB_TOPIC_NAME || "journal-notification";
             const projectId = process.env.PROJECT_ID || "tes-moodify";
-
             const pubsub = pubSubConfig(projectId);
-            const [subscriptions] = await pubsub.getSubscriptions();
-
             const subClient = new v1.SubscriberClient();
 
             const sanitizedEmail = req.email?.replace(/@/g, "-at-").replace(/\./g, "-dot-");
-            
             const subscriptionName = `projects/${projectId}/subscriptions/user-${sanitizedEmail}-subscription`;
 
-            if (!subscriptions.find(sub => sub.name === subscriptionName)) {
+            const [subscriptions] = await pubsub.getSubscriptions();
+            const subscriptionExists = subscriptions.some(sub => sub.name === subscriptionName);
+
+            if (!subscriptionExists) {
                 return res.status(404).json({
                     error: true,
                     message: `Subscription ${subscriptionName} does not exist.`,
+                    reason: "Wait for user to already register for 1 day",
                 });
             }
 
+            const [response] = await subClient.pull({
+                subscription: subscriptionName,
+                maxMessages: 1,
+            });
 
-                const [response] = await subClient.pull({
-                    subscription: subscriptionName,
-                    maxMessages: 1,
+            if (response.receivedMessages?.length) {
+                const promises = response.receivedMessages.map(async (message) => {
+                    const parsedMessage = JSON.parse(message.message?.data?.toString() || "");
+
+                    const emails = parsedMessage.result || [];
+                    const selectedEmail = emails.find((email: any) => email.email === req.email);
+
+                    if (selectedEmail && message.ackId) {
+                        console.log("Selected Email:", selectedEmail);
+
+                        await subClient.acknowledge({
+                            subscription: subscriptionName,
+                            ackIds: [message.ackId],
+                        });
+
+                        res.status(200).json({
+                            error: false,
+                            message: "Notification fetched successfully",
+                            notification:
+                                Number(selectedEmail.journal_count) === 0
+                                    ? "Please create your journal"
+                                    : "User already created journal",
+                        });
+                        return true;
+                    }
+                    return false;
                 });
 
-                if (response.receivedMessages) {
-                    for (const message of response.receivedMessages) {
-                        const parsedMessage = JSON.parse(message.message?.data?.toString() || "");
-
-                        const emails = parsedMessage.result;
-                        console.log(emails);
-                        
-                        const selectedEmail = emails.find((result: any) =>
-                            result.email?.toLowerCase().trim() === req.email?.toLowerCase().trim()
-                        );
-
-                        if (selectedEmail && message.ackId) {
-                            console.log("Selected Email:", selectedEmail);
-
-                            // Acknowledge the message
-                            await subClient.acknowledge({
-                                subscription: subscriptionName,
-                                ackIds: [message.ackId],
-                            });
-
-                            // Send response and exit the loop
-                            return res.status(200).json({
-                                error: false,
-                                message: "Notification fetched successfully",
-                                journal_count:
-                                    Number(selectedEmail.journal_count) === 0
-                                        ? "Please create your journal"
-                                        : "User already create journal",
-                            });
-                        }
-                    }
+                const results = await Promise.all(promises);
+                if (results.some((result) => result)) {
+                    return;
                 }
+            }
 
             return res.status(404).json({
                 error: true,
