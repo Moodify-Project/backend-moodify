@@ -3,5 +3,4 @@
 
 ## Cara Menambahkan Dokumentasi
 
-- Gambar
-![Img 1](dokumentation postman/articles.png)
+![img 1](dokumentationpostman/articles.png)
