@@ -20,10 +20,11 @@
 Token payload should contain the following data:
 
 ```json
+POST /api/v1/auth/register
 {
-  "access_token": "<access_token>",
-  "refresh_token": "<refresh_token>",
-  "expires_in": "<seconds>"
+    "username": "agung",
+    "email": "agung5@gmail.com",
+    "password": "Ayam123!"
 }
 ```
 
