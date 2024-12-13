@@ -1,5 +1,27 @@
 # backend-modify
 
+HTTP/1.1 200
+Pagination-Count: 100
+Pagination-Page: 5
+Pagination-Limit: 20
+Content-Type: application/json
+
+[
+  {
+    "id": 10,
+    "name": "shirt",
+    "color": "red",
+    "price": "$23"
+  },
+  {
+    "id": 11,
+    "name": "coat",
+    "color": "black",
+    "price": "$2300"
+  }
+]
+
+
 
 ## Dokumentasi Postman
 
