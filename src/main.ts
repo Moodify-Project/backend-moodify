@@ -65,11 +65,8 @@ app.post(
           console.log('Cron job cancelled successfully');
         }
       }
-
-      //res.status(200).send('Notification action executed successfully');
     } catch (error) {
       console.error('Error in /api/v1/notifications route:', error);
-      //res.status(500).send('Internal Server Error');
     }
   }
 );
