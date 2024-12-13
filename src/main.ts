@@ -25,53 +25,61 @@ app.use('/api/v1', mainRouter);
 app.post('/predict', predictHandler);
 
 const pushNotification = new PushJournalNotification();
-
 const pullNotification = new ReceiveNotification();
 
-schedule.scheduleJob('*/2 * * * *', () => {
+schedule.scheduleJob('* * * * *', () => {
     pushNotification.producer();
 });
-
-// app.post('/api/v1/notifications', authMiddleware, pullNotification.consumer);
 
 let job: schedule.Job | null = null;
 
 app.post(
-  "/api/v1/notifications",
+  '/api/v1/notifications',
   authMiddleware,
   async (req: AuthenticatedRequest, res: Response): Promise<any> => {
-    if (!req.email) return res.send("no token");
-    console.log("eksekusi cron dalam 1 menit")
+    if (!req.email) return res.status(401).send('No token provided');
+
+    console.log('Preparing to execute cron job in 1 minute...');
     const action = Number(req.query.action) || null;
 
-    if (action == 0) {
-      if (!job) {
-          job = schedule.scheduleJob("* * * * *", async () => {
+    try {
+      if (action == 1) {
+        console.log("executing pull notification");
+        
+        if (!job) {
+          job = schedule.scheduleJob('* * * * *', async () => {
             try {
-              console.log("Executing pull notification cron job...");
-              await pullNotification.consumer(req, res);
+              await pullNotification.consumer(req, res, String(req.email));
             } catch (error) {
-              console.error("Error in cron job execution:", error);
+              console.error('Error in cron job execution:', error);
             }
           });
-      }
-    }
+        }
+      } else if (action == 0 || action == null) {
 
-    if (action == 1) {
-      if (job) {
-        job.cancel();
-        job = null;
+        console.log("try turn off cron")
+        if (job) {
+          console.log("deactivate cron");
+          job.cancel();
+          job = null;
+          console.log('Cron job cancelled successfully');
+        }
       }
+
+      //res.status(200).send('Notification action executed successfully');
+    } catch (error) {
+      console.error('Error in /api/v1/notifications route:', error);
+      //res.status(500).send('Internal Server Error');
     }
   }
 );
 
-
 app.get('/nations', nation);
-app.get('/hello', authMiddleware, () => {
-    console.log("hello word");
-})
+app.get('/hello', authMiddleware, (req, res) => {
+  console.log('Hello world');
+  res.status(200).send('Hello world');
+});
 
 app.listen(port, '0.0.0.0', () => {
-    console.log(server run on http://0.0.0.0:${port});
+  console.log(`Server running on http://0.0.0.0:${port}`);
 });
