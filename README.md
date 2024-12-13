@@ -15,6 +15,17 @@
 | PATCH | /api/causes/:causeId | To edit the details of a single cause |
 | DELETE | /api/causes/:causeId | To delete a single cause |
 
+## Token Payload
+
+Token payload should contain the following data:
+
+```json
+{
+  "access_token": "<access_token>",
+  "refresh_token": "<refresh_token>",
+  "expires_in": "<seconds>"
+}
+
 
 ## Dokumentasi Postman
 
