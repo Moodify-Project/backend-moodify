@@ -2,14 +2,14 @@ version: '3.9'
 
 services:
   db:
-    image: mysql/mysql-server:8.0
+    image: mysql/mysql-server:5.7
     container_name: mysql-db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: docker_laravel
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_USER: root
-      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: <db_name>
+      MYSQL_ROOT_PASSWORD: <db_root_password>
+      MYSQL_USER: <db_user>
+      MYSQL_PASSWORD: <db_password>
     ports:
       - "3306:3306"
     volumes:
@@ -24,7 +24,7 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: <db_root_password>
     networks:
       - sail
     ports:
