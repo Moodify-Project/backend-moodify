@@ -4,6 +4,16 @@
 * [NodeJS](https://nodejs.org/) This is a cross-platform runtime environment built on Chrome's V8 JavaScript engine used in running JavaScript codes on the server. It allows for installation and managing of dependencies and communication with databases.
 * [ExpressJS](https://www.expresjs.org/) This is a NodeJS web application framework.
 
+### API Endpoints
+| HTTP Verbs | Endpoints | Action |
+| --- | --- | --- |
+| POST | /api/user/signup | To sign up a new user account |
+| POST | /api/user/login | To login an existing user account |
+| POST | /api/causes | To create a new cause |
+| GET | /api/causes | To retrieve all causes on the platform |
+| GET | /api/causes/:causeId | To retrieve details of a single cause |
+| PATCH | /api/causes/:causeId | To edit the details of a single cause |
+| DELETE | /api/causes/:causeId | To delete a single cause |
 
 
 ## Dokumentasi Postman
