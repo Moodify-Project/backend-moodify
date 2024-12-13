@@ -7,7 +7,7 @@ import { mainRouter } from './routes/mainRoute';
 import { PushJournalNotification } from './internal/services/messaging/PushJournalNotification';
 import { ReceiveNotification } from './internal/services/messaging/ReceiveNotification';
 import nation from './handlers/nation';
-import { predictHandler } from './handlers/predictHandler';
+// import { predictHandler } from './handlers/predictHandler';
 import schedule from 'node-schedule';
 
 dotenv.config();
@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use('/api/v1', mainRouter);
-app.post('/predict', predictHandler);
+// app.post('/predict', predictHandler);
 
 const pushNotification = new PushJournalNotification();
 
